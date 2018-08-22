@@ -1,14 +1,32 @@
+import sys
+
 import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.player import Bot, Computer
 
-class NickBot(sc2.BotAI):
-    async def on_step(self, iteration):
-        await self.distribute_workers()
+from examples.zerg.hydralisk_push import Hydralisk
+from examples.baneling_bust import BanelingBustBot
+
+from protossbot import NickProtossBot
+from workerrush import WorkerRushBot
+
+def resolve_args():
+    bot = sys.argv[1].lower()
+
+    if bot == 'protoss':
+        return (Race.Protoss, NickProtossBot())
+    elif bot == 'rush':
+        return (Race.Zerg, WorkerRushBot())
+    elif bot == 'bane':
+        return (Race.Zerg, BanelingBustBot())
+    elif bot == 'hydra':
+        return (Race.Zerg, Hydralisk())
 
 
+if __name__ == '__main__':
+    selectedBot = resolve_args()
 
-run_game(maps.get("AbyssalReefLE"), [
-    Bot(Race.Terran, NickBot()),
-    Computer(Race.Terran, Difficulty.Easy)],
-    realtime=True)
+    run_game(maps.get("AbyssalReefLE"), [
+        Bot(*selectedBot),
+        Computer(Race.Terran, Difficulty.Medium)
+        ], realtime=True)
