@@ -8,19 +8,23 @@ from examples.zerg.hydralisk_push import Hydralisk
 from examples.baneling_bust import BanelingBustBot
 
 from protossbot import NickProtossBot
+from zergbot import NickZergBot
 from workerrush import WorkerRushBot
+
 
 def resolve_args():
     bot = sys.argv[1].lower()
 
     if bot == 'protoss':
-        return (Race.Protoss, NickProtossBot())
+        return Race.Protoss, NickProtossBot()
     elif bot == 'rush':
-        return (Race.Zerg, WorkerRushBot())
+        return Race.Zerg, WorkerRushBot()
     elif bot == 'bane':
-        return (Race.Zerg, BanelingBustBot())
+        return Race.Zerg, BanelingBustBot()
     elif bot == 'hydra':
-        return (Race.Zerg, Hydralisk())
+        return Race.Zerg, Hydralisk()
+    elif bot == 'zerg':
+        return Race.Zerg, NickZergBot()
 
 
 if __name__ == '__main__':
@@ -29,4 +33,4 @@ if __name__ == '__main__':
     run_game(maps.get("AbyssalReefLE"), [
         Bot(*selectedBot),
         Computer(Race.Terran, Difficulty.Medium)
-        ], realtime=True)
+        ], realtime=False)
