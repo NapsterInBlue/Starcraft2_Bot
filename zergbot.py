@@ -1,7 +1,10 @@
+import random
+
 import sc2
 
-from sc2.constants import LARVA, DRONE, OVERLORD
-from sc2.constants import HATCHERY, EXTRACTOR, SPAWNINGPOOL, QUEEN
+from sc2.constants import (LARVA, DRONE, OVERLORD, QUEEN,
+                           ZERGLING)
+from sc2.constants import HATCHERY, EXTRACTOR, SPAWNINGPOOL
 from sc2.constants import RESEARCH_ZERGLINGMETABOLICBOOST
 from sc2.constants import EFFECT_INJECTLARVA
 
@@ -28,6 +31,10 @@ class NickZergBot(sc2.BotAI):
         await self.opener()
         await self.queen_behavior()
 
+        if not self.OPENER:
+            await self.build_offensive_force()
+            await self.attack()
+
     def check_unit_build(self, desired_unit, needs_larva=True, max_units=999,
                          supply_used_gt=0, supply_used_lt=201,
                          supply_left_gt=0, supply_left_lt=201):
@@ -49,6 +56,14 @@ class NickZergBot(sc2.BotAI):
         return (at_least <= building_count < limit
                 and self.can_afford(desired_building))
 
+    def optimize_worker_ct(self):
+        for base in self.townhalls:
+            if (base.assigned_harvesters - base.ideal_harvesters < 0
+                    and self.check_unit_build(DRONE, max_units=self.MAX_WORKERS)):
+
+                return True
+        return False
+
     async def opener(self):
         """Lovingly and painstakingly implented the build order of this guide:
         https://www.reddit.com/r/allthingszerg/comments/3wzi14/welcome_to_lotv_heres_my_writeup_of_solid/"""
@@ -67,6 +82,7 @@ class NickZergBot(sc2.BotAI):
 
             if self.check_for_building(HATCHERY, at_least=2):
                 if self.check_for_building(SPAWNINGPOOL, limit=1):
+                    await self.do(self.units(DRONE).random.move(self.enemy_start_locations[0]))
                     await self.build(SPAWNINGPOOL, near=self.hq)
 
                 if self.check_for_building(EXTRACTOR, limit=1) and self.supply_used > 17:
@@ -77,38 +93,67 @@ class NickZergBot(sc2.BotAI):
                 if self.check_unit_build(OVERLORD, supply_used_gt=20, max_units=3):
                     await self.do(self.larvae.first.train(OVERLORD))
 
-                if (self.hq.assigned_harvesters - self.hq.ideal_harvesters < 0
-                        and self.check_unit_build(DRONE)):
-
+                if self.optimize_worker_ct():
                     await self.do(self.larvae.first.train(DRONE))
 
                 if self.units(SPAWNINGPOOL).ready:
-                    if self.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST):
-                        await self.do(self.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
-                        self.OPENER = False
-
                     if (self.check_unit_build(QUEEN, max_units=3, needs_larva=False)
                             and self.hq.is_ready and self.hq.noqueue):
 
                         await self.do(self.hq.train(QUEEN))
 
+                    if self.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST):
+                        self.OPENER = False
+                        await self.do(self.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
+
+    async def build_offensive_force(self):
+        if self.check_unit_build(OVERLORD, supply_left_lt=5):
+            await self.do(self.larvae.random.train(OVERLORD))
+
+        if self.check_unit_build(ZERGLING, max_units=50):
+            await self.do(self.larvae.random.train(ZERGLING))
+
+        if self.optimize_worker_ct():
+            await self.do(self.larvae.random.train(DRONE))
+
+    async def patrol(self, unit):
+        if unit.is_idle:
+            await self.do(unit.move(self.townhalls.random.position))
+
+    async def defend(self, unit):
+        for enemy in self.known_enemy_units:
+            dist_to_base = min([enemy.distance_to(base) for base in self.bases])
+            if dist_to_base < 30:
+                await self.do(unit.attack(enemy))
+
     async def queen_behavior(self):
         if self.units(QUEEN).exists:
-
-            for enemy in self.known_enemy_units:
-                dist_to_base = min([enemy.distance_to(base) for base in self.bases])
-                if dist_to_base < 30:
-                    [await self.do(queen.attack(enemy)) for queen in self.units(QUEEN)]
-                    break
-
             for queen in self.units(QUEEN):
+                await self.defend(queen)
+                await self.patrol(queen)
+
                 abilities = await self.get_available_abilities(queen)
                 if EFFECT_INJECTLARVA in abilities:
                     await self.do(queen(EFFECT_INJECTLARVA, self.townhalls.closest_to(queen)))
 
-                if queen.is_idle:
-                    await self.do(queen.move(self.townhalls.random.position))
+    def find_target(self):
+        if len(self.known_enemy_units) > 0:
+            return random.choice(self.known_enemy_units)
+        elif len(self.known_enemy_structures) > 0:
+            return random.choice(self.known_enemy_structures)
+        else:
+            return self.enemy_start_locations[0]
 
+    async def attack(self):
+        # {UNIT: [n to fight, n to defend]}
+        aggressive_units = {ZERGLING: [15, 5],
+                            }
 
+        for UNIT in aggressive_units:
+            if self.units(UNIT).amount > aggressive_units[UNIT][0]:
+                for s in self.units(UNIT).idle:
+                    await self.do(s.attack(self.find_target()))
 
-
+            elif self.units(UNIT).amount > aggressive_units[UNIT][1]:
+                for s in self.units(UNIT).idle:
+                    await self.defend(s)
