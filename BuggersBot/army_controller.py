@@ -15,8 +15,9 @@ class ArmyController:
         await self.queen_controller.queen_behavior()
 
     async def defend(self, unit):
+        bases = self.bot.building_controller.bases
         for enemy in self.bot.known_enemy_units:
-            dist_to_base = min([enemy.distance_to(base) for base in self.bot.bases])
+            dist_to_base = min([enemy.distance_to(base) for base in bases])
             if dist_to_base < 30:
                 await self.bot.do(unit.attack(enemy))
 

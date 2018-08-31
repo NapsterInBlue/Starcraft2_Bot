@@ -10,6 +10,7 @@ from .opener import Opener
 from .army_controller import ArmyController
 from .worker_controller import WorkerController
 from .event_manager import EventManager
+from .building_controller import BuildingController
 
 
 class Buggers(sc2.BotAI):
@@ -21,6 +22,7 @@ class Buggers(sc2.BotAI):
         self.coordinator = Coordinator(bot=self)
         self.opener = Opener(bot=self)
         self.army_controller = ArmyController(bot=self)
+        self.building_controller = BuildingController(bot=self)
         self.worker_controller = WorkerController(bot=self)
         self.event_manager = EventManager()
 
@@ -29,8 +31,9 @@ class Buggers(sc2.BotAI):
     def on_start(self):
         self.army_controller.init()
 
-        self.event_manager.add_event(self.worker_controller.step, 0.1)
+        self.event_manager.add_event(self.building_controller.step, 0.1)
         self.event_manager.add_event(self.army_controller.step, 0.1)
+        self.event_manager.add_event(self.worker_controller.step, 0.1)
 
     async def on_step(self, iteration):
         # if iteration == 0:
@@ -64,13 +67,13 @@ class Buggers(sc2.BotAI):
 
     async def build_offensive_force(self):
         if self.coordinator.check_unit_build(OVERLORD, supply_left_lt=5):
-            await self.do(self.larvae.random.train(OVERLORD))
+            await self.do(self.coordinator.larvae.random.train(OVERLORD))
 
         if self.coordinator.check_unit_build(ZERGLING, max_units=50):
-            await self.do(self.larvae.random.train(ZERGLING))
+            await self.do(self.coordinator.larvae.random.train(ZERGLING))
 
         if self.worker_controller.optimize_worker_ct():
-            await self.do(self.larvae.random.train(DRONE))
+            await self.do(self.coordinator.larvae.random.train(DRONE))
 
     async def toggle_amass_army(self, value):
         self.AMASS_ARMY = value
