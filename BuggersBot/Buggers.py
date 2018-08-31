@@ -40,12 +40,12 @@ class Buggers(sc2.BotAI):
     def on_start(self):
         self.globals.init()
 
-        self.event_manager.add_event(self.strategy_controller.step, 0.2)
+        self.event_manager.add_event(self.strategy_controller.step, 0.5)
         self.event_manager.add_event(self.unit_creation_controller.step, 0.1)
         self.event_manager.add_event(self.army_controller.step, 0.1)
-        self.event_manager.add_event(self.worker_controller.step, 0.1)
-        self.event_manager.add_event(self.research_controller.step, 0.5)
-        self.event_manager.add_event(self.building_controller.step, 0.25)
+        self.event_manager.add_event(self.worker_controller.step, 0.25)
+        self.event_manager.add_event(self.research_controller.step, 2)
+        self.event_manager.add_event(self.building_controller.step, 2)
 
     async def on_step(self, iteration):
         # if iteration == 0:
