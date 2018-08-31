@@ -20,8 +20,8 @@ class Checker:
 # utils
 
     def unit(self, desired_unit, needs_larva=True, max_units=999,
-                   supply_used_gt=0, supply_used_lt=201,
-                   supply_left_gt=0, supply_left_lt=201):
+             supply_used_gt=0, supply_used_lt=201,
+             supply_left_gt=0, supply_left_lt=201):
 
         unit_count = self.bot.units(desired_unit).amount + self.bot.already_pending(desired_unit)
         larva_req_met = not needs_larva or self.bot.globals.larvae.exists
