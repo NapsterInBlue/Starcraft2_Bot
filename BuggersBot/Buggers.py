@@ -1,19 +1,16 @@
 import random
 
 import sc2
-from sc2.units import Units
-from sc2.unit import Unit
-
-from sc2.constants import *
 
 from sc2.position import Point2
+from sc2.constants import *
+
+from .coordinator import Coordinator
+from .army_controller import ArmyController
+from .event_manager import EventManager
 
 
-from coordinator import Coordinator
-from army_controller import ArmyController
-
-
-class NickZergBot(sc2.BotAI):
+class Buggers(sc2.BotAI):
     def __init__(self):
         self.ITERATIONS_PER_MINUTE = 165
         self.MAX_WORKERS = 65
@@ -28,6 +25,7 @@ class NickZergBot(sc2.BotAI):
 
         self.coordinator = Coordinator(bot=self)
         self.army_controller = ArmyController(bot=self)
+        self.event_manager = EventManager()
 
     async def on_step(self, iteration):
         self.bases = self.townhalls

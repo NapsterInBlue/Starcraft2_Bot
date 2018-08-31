@@ -1,6 +1,5 @@
 import sys
 
-import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.player import Bot, Computer
 
@@ -8,7 +7,7 @@ from examples.zerg.hydralisk_push import Hydralisk
 from examples.baneling_bust import BanelingBustBot
 
 from protossbot import NickProtossBot
-from zergbot import NickZergBot
+from BuggersBot.Buggers import Buggers
 from workerrush import WorkerRushBot
 
 
@@ -24,7 +23,7 @@ def resolve_args():
     elif bot == 'hydra':
         return Race.Zerg, Hydralisk()
     elif bot == 'zerg':
-        return Race.Zerg, NickZergBot()
+        return Race.Zerg, Buggers()
 
 
 if __name__ == '__main__':
