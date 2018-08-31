@@ -31,8 +31,7 @@ class WorkerController:
         n_workers = self.bot.units(UnitTypeId.DRONE).amount
 
         if self.optimize_worker_ct():
-            if self.bot.coordinator.unit_check(UnitTypeId.DRONE):
-                await self.bot.do(self.larvae.random.train(UnitTypeId.DRONE))
+            await self.bot.do(self.larvae.random.train(UnitTypeId.DRONE))
 
     def optimize_worker_ct(self):
         for base in self.bot.globals.bases:

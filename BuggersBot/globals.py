@@ -28,9 +28,11 @@ class Globals:
         self.nearby_enemy_structures_found = {}
 
         self.map_center = None
+        self.enemy_hq = None
 
     def init(self):
         self.map_center = self.bot.game_info.map_center
+        self.enemy_hq = self.bot.enemy_start_locations[0]
 
     async def step(self):
         self.update_base_list()
