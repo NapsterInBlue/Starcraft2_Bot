@@ -34,7 +34,6 @@ class Buggers(sc2.BotAI):
     def on_start(self):
         self.globals.init()
 
-        self.event_manager.add_event(self.globals.step, 0.1)
         self.event_manager.add_event(self.building_controller.step, 0.25)
         self.event_manager.add_event(self.unit_creation_controller.step, 0.1)
         self.event_manager.add_event(self.army_controller.step, 0.1)

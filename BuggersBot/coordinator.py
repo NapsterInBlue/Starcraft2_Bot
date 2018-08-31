@@ -56,4 +56,6 @@ class Coordinator:
         return Point2((coordX, coordY))
 
     async def toggle_amass_army(self, value):
-        self.bot.AMASS_ARMY = value
+        print("Amassing army")
+        self.AMASS_ARMY = value
+        self.bot.unit_creation_controller.baseRallyPointsSet = {}
