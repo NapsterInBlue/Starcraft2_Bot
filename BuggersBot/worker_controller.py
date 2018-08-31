@@ -25,7 +25,7 @@ class WorkerController:
         self.nearby_enemy_structures_found = {}
 
     async def step(self):
-        self.larvae = self.bot.units(UnitTypeId.LARVA)
+        self.larvae = self.bot.coordinator.larvae
 
         self.update_threats()
         self.update_worker_count_on_gas()
@@ -71,8 +71,9 @@ class WorkerController:
     async def build_workers(self):
         n_workers = self.bot.units(UnitTypeId.DRONE).amount
 
-        if self.bot.coordinator.check_unit_build(UnitTypeId.DRONE):
-            await self.bot.do(self.larvae.random.train(UnitTypeId.DRONE))
+        if self.optimize_worker_ct():
+            if self.bot.coordinator.check_unit_build(UnitTypeId.DRONE):
+                await self.bot.do(self.larvae.random.train(UnitTypeId.DRONE))
 
     def optimize_worker_ct(self):
         for base in self.bot.townhalls:
