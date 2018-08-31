@@ -1,18 +1,22 @@
 import random
 
 import sc2
+from sc2.units import Units
+from sc2.unit import Unit
 
-from sc2.constants import (LARVA, DRONE, OVERLORD, QUEEN,
-                           ZERGLING)
-from sc2.constants import HATCHERY, EXTRACTOR, SPAWNINGPOOL
-from sc2.constants import RESEARCH_ZERGLINGMETABOLICBOOST
-from sc2.constants import EFFECT_INJECTLARVA
+from sc2.constants import *
+
+from sc2.position import Point2
 
 
-class NickZergBot(sc2.BotAI):
+from utils import UtilityBot
+
+
+class NickZergBot(sc2.BotAI, UtilityBot):
     def __init__(self):
         self.ITERATIONS_PER_MINUTE = 165
         self.MAX_WORKERS = 65
+        self.AMASS_ARMY = False
         self.OPENER = True
         self.iteration = 0
 
@@ -34,35 +38,8 @@ class NickZergBot(sc2.BotAI):
         if not self.OPENER:
             await self.build_offensive_force()
             await self.attack()
-
-    def check_unit_build(self, desired_unit, needs_larva=True, max_units=999,
-                         supply_used_gt=0, supply_used_lt=201,
-                         supply_left_gt=0, supply_left_lt=201):
-
-        unit_count = self.units(desired_unit).amount + self.already_pending(desired_unit)
-        larva_req_met = not needs_larva or self.larvae.exists
-
-        return (larva_req_met
-                and supply_used_lt > self.supply_used > supply_used_gt
-                and supply_left_lt > self.supply_left > supply_left_gt
-                and self.can_afford(desired_unit)
-                and unit_count < max_units)
-
-    def check_for_building(self, desired_building, at_least=0, limit=999):
-
-        building_count = (self.units(desired_building).amount
-                          + self.already_pending(desired_building))
-
-        return (at_least <= building_count < limit
-                and self.can_afford(desired_building))
-
-    def optimize_worker_ct(self):
-        for base in self.townhalls:
-            if (base.assigned_harvesters - base.ideal_harvesters < 0
-                    and self.check_unit_build(DRONE, max_units=self.MAX_WORKERS)):
-
-                return True
-        return False
+            await self.assign_rally_points()
+            await self.game_time()
 
     async def opener(self):
         """Lovingly and painstakingly implented the build order of this guide:
@@ -116,16 +93,6 @@ class NickZergBot(sc2.BotAI):
         if self.optimize_worker_ct():
             await self.do(self.larvae.random.train(DRONE))
 
-    async def patrol(self, unit):
-        if unit.is_idle:
-            await self.do(unit.move(self.townhalls.random.position))
-
-    async def defend(self, unit):
-        for enemy in self.known_enemy_units:
-            dist_to_base = min([enemy.distance_to(base) for base in self.bases])
-            if dist_to_base < 30:
-                await self.do(unit.attack(enemy))
-
     async def queen_behavior(self):
         if self.units(QUEEN).exists:
             for queen in self.units(QUEEN):
@@ -135,6 +102,29 @@ class NickZergBot(sc2.BotAI):
                 abilities = await self.get_available_abilities(queen)
                 if EFFECT_INJECTLARVA in abilities:
                     await self.do(queen(EFFECT_INJECTLARVA, self.townhalls.closest_to(queen)))
+
+    async def toggle_amass_army(self, value):
+        self.AMASS_ARMY = value
+        del self.hatcheryRallyPointsSet
+
+    async def assign_rally_points(self):
+        """Rally workers to nearest minerals. Rally units closeby."""
+        if hasattr(self, "hatcheryRallyPointsSet"):
+            for hatch in self.townhalls:
+                if hatch.tag not in self.hatcheryRallyPointsSet:
+                    mf = self.state.mineral_field.closest_to(hatch.position.to2.offset(Point2((0, -3))))
+                    err = await self.do(hatch(RALLY_WORKERS, mf))
+                    if not err:
+                        mfs = self.state.mineral_field.closer_than(10, hatch.position.to2)
+                        if self.AMASS_ARMY:
+                            loc = self.find_amass_army_rally_point()
+                        elif mfs.exists:
+                            loc = self.center_of_units(mfs)
+                        err = await self.do(hatch(RALLY_UNITS, loc))
+                        if not err:
+                            self.hatcheryRallyPointsSet[hatch.tag] = loc
+        else:
+            self.hatcheryRallyPointsSet = {}
 
     def find_target(self):
         if len(self.known_enemy_units) > 0:
@@ -157,3 +147,7 @@ class NickZergBot(sc2.BotAI):
             elif self.units(UNIT).amount > aggressive_units[UNIT][1]:
                 for s in self.units(UNIT).idle:
                     await self.defend(s)
+
+    async def game_time(self):
+        if self.game_time_in_mins > 3 and not self.AMASS_ARMY:
+            await self.toggle_amass_army(True)
