@@ -6,11 +6,7 @@ import sc2
 from sc2.units import Units
 from sc2.unit import Unit
 
-from sc2.constants import (LARVA, DRONE, OVERLORD, QUEEN,
-                           ZERGLING)
-from sc2.constants import HATCHERY, EXTRACTOR, SPAWNINGPOOL
-from sc2.constants import RESEARCH_ZERGLINGMETABOLICBOOST
-from sc2.constants import EFFECT_INJECTLARVA, RALLY_WORKERS, RALLY_UNITS
+from sc2.constants import *
 
 from sc2.position import Point2
 
@@ -18,6 +14,7 @@ from sc2.position import Point2
 class Coordinator:
     def __init__(self, bot):
         self.bot = bot
+        self.larvae = None
 
     @property
     def game_time_in_seconds(self):
@@ -29,12 +26,20 @@ class Coordinator:
         # returns real time if game is played on "faster"
         return self.game_time_in_seconds / 60
 
+    async def step(self):
+        self.update_larvae()
+
+    def update_larvae(self):
+        self.larvae = self.bot.units(LARVA)
+
+# utils
+
     def check_unit_build(self, desired_unit, needs_larva=True, max_units=999,
                          supply_used_gt=0, supply_used_lt=201,
                          supply_left_gt=0, supply_left_lt=201):
 
         unit_count = self.bot.units(desired_unit).amount + self.bot.already_pending(desired_unit)
-        larva_req_met = not needs_larva or self.bot.larvae.exists
+        larva_req_met = not needs_larva or self.larvae.exists
 
         return (larva_req_met
                 and supply_used_lt > self.bot.supply_used > supply_used_gt
@@ -49,16 +54,6 @@ class Coordinator:
 
         return (at_least <= building_count < limit
                 and self.bot.can_afford(desired_building))
-
-    def optimize_worker_ct(self):
-        for base in self.bot.townhalls:
-            if (base.assigned_harvesters - base.ideal_harvesters < 0
-                    and self.check_unit_build(DRONE, max_units=self.bot.MAX_WORKERS)):
-
-                return True
-        return False
-
-
 
     def center_of_units(self, units):
         if isinstance(units, list):
