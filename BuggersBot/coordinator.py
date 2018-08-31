@@ -15,7 +15,19 @@ class Coordinator:
     def __init__(self, bot):
         self.bot = bot
         self.larvae = None
+        self.bases = set()
 
+    async def step(self):
+        self.update_larvae()
+        self.update_base_list()
+
+    def update_larvae(self):
+        self.larvae = self.bot.units(LARVA)
+
+    def update_base_list(self):
+        self.bases = self.bot.townhalls
+
+# utils
     @property
     def game_time_in_seconds(self):
         # returns real time if game is played on "faster"
@@ -25,14 +37,6 @@ class Coordinator:
     def game_time_in_mins(self):
         # returns real time if game is played on "faster"
         return self.game_time_in_seconds / 60
-
-    async def step(self):
-        self.update_larvae()
-
-    def update_larvae(self):
-        self.larvae = self.bot.units(LARVA)
-
-# utils
 
     def check_unit_build(self, desired_unit, needs_larva=True, max_units=999,
                          supply_used_gt=0, supply_used_lt=201,

@@ -31,7 +31,7 @@ class Buggers(sc2.BotAI):
     def on_start(self):
         self.army_controller.init()
 
-        self.event_manager.add_event(self.building_controller.step, 0.1)
+        self.event_manager.add_event(self.building_controller.step, 0.25)
         self.event_manager.add_event(self.army_controller.step, 0.1)
         self.event_manager.add_event(self.worker_controller.step, 0.1)
 
@@ -41,6 +41,7 @@ class Buggers(sc2.BotAI):
         #     await self.chat_send('GL HF!')
         #
         #     return
+
         await self.coordinator.step()
 
         if self.OPENER:
