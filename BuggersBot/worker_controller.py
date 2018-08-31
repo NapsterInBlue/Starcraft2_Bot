@@ -36,7 +36,7 @@ class WorkerController:
     def optimize_worker_ct(self):
         for base in self.bot.globals.bases:
             if (base.assigned_harvesters - base.ideal_harvesters < 0
-                    and self.bot.coordinator.unit_check(DRONE, max_units=self.maximum_workers)):
+                    and self.bot.checker.unit(DRONE, max_units=self.maximum_workers)):
 
                 return True
         return False

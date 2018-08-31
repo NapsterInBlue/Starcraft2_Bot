@@ -5,40 +5,47 @@ import sc2
 from sc2.position import Point2
 from sc2.constants import *
 
-from .coordinator import Coordinator
+from .event_manager import EventManager
+from .checker import Checker
+from .calculator import Calculator
 from .globals import Globals
 
 from .opener import Opener
+
+from .strategy_controller import StrategyController
 from .unit_creation_controller import UnitCreationController
 from .army_controller import ArmyController
 from .worker_controller import WorkerController
 from .research_controller import ResearchController
-from .event_manager import EventManager
 from .building_controller import BuildingController
 
 
 class Buggers(sc2.BotAI):
     def __init__(self):
+        self.event_manager = EventManager()
+        self.checker = Checker(bot=self)
+        self.calculator = Calculator(bot=self)
         self.globals = Globals(bot=self)
-        self.coordinator = Coordinator(bot=self)
         self.opener = Opener(bot=self)
+
+        self.strategy_controller = StrategyController(bot=self)
         self.unit_creation_controller = UnitCreationController(bot=self)
         self.army_controller = ArmyController(bot=self)
-        self.building_controller = BuildingController(bot=self)
         self.worker_controller = WorkerController(bot=self)
         self.research_controller = ResearchController(bot=self)
-        self.event_manager = EventManager()
+        self.building_controller = BuildingController(bot=self)
 
         self.order_queue = []
 
     def on_start(self):
         self.globals.init()
 
-        self.event_manager.add_event(self.building_controller.step, 0.25)
+        self.event_manager.add_event(self.strategy_controller.step, 0.2)
         self.event_manager.add_event(self.unit_creation_controller.step, 0.1)
         self.event_manager.add_event(self.army_controller.step, 0.1)
-        self.event_manager.add_event(self.research_controller.step, 0.5)
         self.event_manager.add_event(self.worker_controller.step, 0.1)
+        self.event_manager.add_event(self.research_controller.step, 0.5)
+        self.event_manager.add_event(self.building_controller.step, 0.25)
 
     async def on_step(self, iteration):
         # if iteration == 0:
@@ -49,12 +56,10 @@ class Buggers(sc2.BotAI):
 
         await self.globals.step()
 
-        if self.coordinator.OPENER:
+        if self.strategy_controller.OPENER:
             await self.opener.step()
 
         else:
-            await self.game_time()
-
             events = self.event_manager.get_current_events(self.time)
             for event in events:
                 await event()
@@ -67,7 +72,3 @@ class Buggers(sc2.BotAI):
     async def execute_order_queue(self):
         await self._client.actions(self.order_queue, game_data=self._game_data)
         self.order_queue = []
-
-    async def game_time(self):
-        if self.globals.game_time_in_mins > 3 and not self.coordinator.AMASS_ARMY:
-            await self.coordinator.toggle_amass_army(True)

@@ -1,5 +1,7 @@
-# coding=utf-8
-
+"""
+Used to centralize 'check for this condition' statements that are used
+often and would otherwise be a waterfall of if statements
+"""
 import random
 
 import sc2
@@ -11,16 +13,13 @@ from sc2.constants import *
 from sc2.position import Point2
 
 
-class Coordinator:
+class Checker:
     def __init__(self, bot):
         self.bot = bot
 
-        self.OPENER = True
-        self.AMASS_ARMY = False
-
 # utils
 
-    def unit_check(self, desired_unit, needs_larva=True, max_units=999,
+    def unit(self, desired_unit, needs_larva=True, max_units=999,
                    supply_used_gt=0, supply_used_lt=201,
                    supply_left_gt=0, supply_left_lt=201):
 
@@ -33,7 +32,7 @@ class Coordinator:
                 and self.bot.can_afford(desired_unit)
                 and unit_count < max_units)
 
-    def building_check(self, desired_building, at_least=0, limit=999):
+    def building(self, desired_building, at_least=0, limit=999):
 
         building_count = (self.bot.units(desired_building).amount
                           + self.bot.already_pending(desired_building))
@@ -41,21 +40,9 @@ class Coordinator:
         return (at_least <= building_count < limit
                 and self.bot.can_afford(desired_building))
 
-    def research_check(self, desired_tech):
+    def research(self, desired_tech):
         return self.bot.can_afford(desired_tech)
 
-    def center_of_units(self, units):
-        if isinstance(units, list):
-            units = Units(units, self.bot._game_data)
-        assert isinstance(units, Units)
-        assert units.exists
-        if len(units) == 1:
-            return units[0].position.to2
-        coordX = sum([unit.position.x for unit in units]) / len(units)
-        coordY = sum([unit.position.y for unit in units]) / len(units)
-        return Point2((coordX, coordY))
 
-    async def toggle_amass_army(self, value):
-        print("Amassing army")
-        self.AMASS_ARMY = value
-        self.bot.unit_creation_controller.baseRallyPointsSet = {}
+
+

@@ -2,7 +2,7 @@
 Controls research capabilities (a verbose task) per the current
 strategy
 
-self.<X>_research_priority should be dictated in coordinator.py
+self.<X>_research_priority should be dictated in strategy_controller.py
 """
 
 from sc2.constants import *
@@ -11,7 +11,7 @@ from sc2.constants import *
 class ResearchController:
     def __init__(self, bot):
         self.bot = bot
-        self.coordinator = bot.coordinator
+        self.checker = bot.checker
 
         self.upgrades = {
             'ground_melee': [
@@ -56,5 +56,5 @@ class ResearchController:
 
             for upgrade_type in self.evo_research_priority:
                 for upgrade in self.upgrades[upgrade_type]:
-                    if upgrade in abilities and self.coordinator.research_check(upgrade):
+                    if upgrade in abilities and self.checker.research(upgrade):
                         await self.bot.do(evo(upgrade))

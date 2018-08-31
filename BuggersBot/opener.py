@@ -11,7 +11,7 @@ from sc2.constants import *
 class Opener:
     def __init__(self, bot):
         self.bot = bot
-        self.coordinator = self.bot.coordinator
+        self.checker = self.bot.checker
         self.do = self.bot.do
 
     async def step(self):
@@ -21,39 +21,39 @@ class Opener:
 
         await self.bot.distribute_workers()
 
-        if self.coordinator.unit_check(DRONE, supply_used_lt=13):
+        if self.checker.unit(DRONE, supply_used_lt=13):
             await self.do(self.larvae.random.train(DRONE))
 
-        if self.coordinator.unit_check(OVERLORD, supply_used_lt=14, max_units=2):
+        if self.checker.unit(OVERLORD, supply_used_lt=14, max_units=2):
             await self.do(self.larvae.random.train(OVERLORD))
 
-        if self.coordinator.building_check(HATCHERY, limit=2):
+        if self.checker.building(HATCHERY, limit=2):
             await self.bot.expand_now()
 
-        if self.coordinator.unit_check(DRONE, supply_used_lt=20, supply_left_gt=4):
+        if self.checker.unit(DRONE, supply_used_lt=20, supply_left_gt=4):
             await self.do(self.larvae.random.train(DRONE))
 
-        if self.coordinator.building_check(HATCHERY, at_least=2):
-            if self.coordinator.building_check(SPAWNINGPOOL, limit=1):
+        if self.checker.building(HATCHERY, at_least=2):
+            if self.checker.building(SPAWNINGPOOL, limit=1):
                 await self.do(self.bot.units(DRONE).random.move(self.bot.enemy_start_locations[0]))
                 await self.bot.build(SPAWNINGPOOL, near=self.hq)
 
-            if self.coordinator.building_check(EXTRACTOR, limit=1) and self.bot.supply_used > 17:
+            if self.checker.building(EXTRACTOR, limit=1) and self.bot.supply_used > 17:
                 drone = self.bot.workers.random
                 target = self.bot.state.vespene_geyser.closest_to(drone.position)
                 await self.do(drone.build(EXTRACTOR, target))
 
-            if self.coordinator.unit_check(OVERLORD, supply_used_gt=20, max_units=3):
+            if self.checker.unit(OVERLORD, supply_used_gt=20, max_units=3):
                 await self.do(self.larvae.first.train(OVERLORD))
 
             if self.bot.worker_controller.optimize_worker_ct():
                 await self.do(self.larvae.first.train(DRONE))
 
             if self.bot.units(SPAWNINGPOOL).ready:
-                if (self.coordinator.unit_check(QUEEN, max_units=3, needs_larva=False)
+                if (self.checker.unit(QUEEN, max_units=3, needs_larva=False)
                         and self.hq.is_ready and self.hq.noqueue):
                     await self.do(self.hq.train(QUEEN))
 
                 if self.bot.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST):
                     await self.do(self.bot.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
-                    self.coordinator.OPENER = False
+                    self.bot.strategy_controller.OPENER = False

@@ -5,6 +5,7 @@ Controls unit construction and their rally points
 from sc2.constants import *
 from sc2.position import Point2
 
+
 class UnitCreationController:
     def __init__(self, bot):
         self.bot = bot
@@ -19,10 +20,10 @@ class UnitCreationController:
         self.larvae = self.bot.units(LARVA)
 
     async def build_offensive_force(self):
-        if self.bot.coordinator.unit_check(OVERLORD, supply_left_lt=5):
+        if self.bot.checker.unit(OVERLORD, supply_left_lt=5):
             await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
 
-        if self.bot.coordinator.unit_check(ZERGLING, max_units=50):
+        if self.bot.checker.unit(ZERGLING, max_units=50):
             await self.bot.do(self.bot.globals.larvae.random.train(ZERGLING))
 
         if self.bot.worker_controller.optimize_worker_ct():
@@ -42,10 +43,10 @@ class UnitCreationController:
                     # if not err:
 
                     mfs = self.bot.state.mineral_field.closer_than(10, base.position.to2)
-                    if self.bot.coordinator.AMASS_ARMY:
+                    if self.bot.strategy_controller.AMASS_ARMY:
                         loc = self.find_amass_army_rally_point()
                     elif mfs.exists:
-                        loc = self.bot.coordinator.center_of_units(mfs)
+                        loc = self.bot.calculator.center_of_units(mfs)
                     else:
                         loc = base.position.to2
                     err = await self.bot.do(base(RALLY_UNITS, loc))

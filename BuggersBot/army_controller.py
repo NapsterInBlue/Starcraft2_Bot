@@ -1,3 +1,15 @@
+"""
+Controls all army micro and macro.
+
+Army unit-specific controllers should drop their main coroutines in `ArmyController.step()`
+
+Also has utility functions for:
+
+- Defend
+- Patrol
+"""
+
+
 import random
 
 from sc2.constants import *
