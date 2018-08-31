@@ -1,3 +1,11 @@
+"""
+Contains global attributes useful across Controllers, including:
+
+- Bases
+- Larvae
+- Enemy Threats
+"""
+
 from sc2.constants import *
 
 

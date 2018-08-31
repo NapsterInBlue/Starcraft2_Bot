@@ -1,3 +1,7 @@
+"""
+Controls allocation and optimal counts/behavior of worker units
+"""
+
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.constants import *
 

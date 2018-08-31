@@ -1,3 +1,10 @@
+"""
+Controls research capabilities (a verbose task) per the current
+strategy
+
+self.<X>_research_priority should be dictated in coordinator.py
+"""
+
 from sc2.constants import *
 
 

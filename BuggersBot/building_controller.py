@@ -1,3 +1,7 @@
+"""
+Controls the construction of buildings
+"""
+
 from sc2.constants import *
 
 from sc2.position import Point2

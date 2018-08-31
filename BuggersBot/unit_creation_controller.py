@@ -1,3 +1,7 @@
+"""
+Controls unit construction and their rally points
+"""
+
 from sc2.constants import *
 
 

@@ -1,3 +1,8 @@
+"""
+Builds a queue of events that potentially get called on every
+Buggers.step cycle. Toggle `time_interval` to decrease frequency.
+"""
+
 from random import random
 
 

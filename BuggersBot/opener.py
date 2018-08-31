@@ -1,6 +1,8 @@
 """
 Lovingly and painstakingly implented the build order of this guide:
 https://www.reddit.com/r/allthingszerg/comments/3wzi14/welcome_to_lotv_heres_my_writeup_of_solid/
+
+Shuts off after we research metabolic boost
 """
 
 from sc2.constants import *
@@ -53,5 +55,5 @@ class Opener:
                     await self.do(self.hq.train(QUEEN))
 
                 if self.bot.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST):
-                    self.coordinator.OPENER = False
                     await self.do(self.bot.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
+                    self.coordinator.OPENER = False
