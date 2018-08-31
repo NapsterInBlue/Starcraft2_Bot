@@ -6,6 +6,8 @@ from sc2.position import Point2
 from sc2.constants import *
 
 from .coordinator import Coordinator
+from .globals import Globals
+
 from .opener import Opener
 from .unit_creation_controller import UnitCreationController
 from .army_controller import ArmyController
@@ -16,10 +18,7 @@ from .building_controller import BuildingController
 
 class Buggers(sc2.BotAI):
     def __init__(self):
-        self.ITERATIONS_PER_MINUTE = 165
-        self.OPENER = True
-        self.AMASS_ARMY = False
-
+        self.globals = Globals(bot=self)
         self.coordinator = Coordinator(bot=self)
         self.opener = Opener(bot=self)
         self.unit_creation_controller = UnitCreationController(bot=self)
@@ -31,8 +30,9 @@ class Buggers(sc2.BotAI):
         self.order_queue = []
 
     def on_start(self):
-        self.army_controller.init()
+        self.globals.init()
 
+        self.event_manager.add_event(self.globals.step, 0.1)
         self.event_manager.add_event(self.building_controller.step, 0.25)
         self.event_manager.add_event(self.unit_creation_controller.step, 0.1)
         self.event_manager.add_event(self.army_controller.step, 0.1)
@@ -45,9 +45,9 @@ class Buggers(sc2.BotAI):
         #
         #     return
 
-        await self.coordinator.step()
+        await self.globals.step()
 
-        if self.OPENER:
+        if self.coordinator.OPENER:
             await self.opener.step()
 
         else:
@@ -67,5 +67,5 @@ class Buggers(sc2.BotAI):
         self.order_queue = []
 
     async def game_time(self):
-        if self.coordinator.game_time_in_mins > 3 and not self.AMASS_ARMY:
+        if self.globals.game_time_in_mins > 3 and not self.coordinator.AMASS_ARMY:
             await self.coordinator.toggle_amass_army(True)

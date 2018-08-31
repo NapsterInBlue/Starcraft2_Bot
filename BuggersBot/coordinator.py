@@ -14,36 +14,18 @@ from sc2.position import Point2
 class Coordinator:
     def __init__(self, bot):
         self.bot = bot
-        self.larvae = None
-        self.bases = set()
 
-    async def step(self):
-        self.update_larvae()
-        self.update_base_list()
-
-    def update_larvae(self):
-        self.larvae = self.bot.units(LARVA)
-
-    def update_base_list(self):
-        self.bases = self.bot.townhalls
+        self.OPENER = True
+        self.AMASS_ARMY = False
 
 # utils
-    @property
-    def game_time_in_seconds(self):
-        # returns real time if game is played on "faster"
-        return self.bot.state.game_loop * 0.725 * (1 / 16)
-
-    @property
-    def game_time_in_mins(self):
-        # returns real time if game is played on "faster"
-        return self.game_time_in_seconds / 60
 
     def check_unit_build(self, desired_unit, needs_larva=True, max_units=999,
                          supply_used_gt=0, supply_used_lt=201,
                          supply_left_gt=0, supply_left_lt=201):
 
         unit_count = self.bot.units(desired_unit).amount + self.bot.already_pending(desired_unit)
-        larva_req_met = not needs_larva or self.larvae.exists
+        larva_req_met = not needs_larva or self.bot.globals.larvae.exists
 
         return (larva_req_met
                 and supply_used_lt > self.bot.supply_used > supply_used_gt
@@ -69,8 +51,6 @@ class Coordinator:
         coordX = sum([unit.position.x for unit in units]) / len(units)
         coordY = sum([unit.position.y for unit in units]) / len(units)
         return Point2((coordX, coordY))
-
-
 
     async def toggle_amass_army(self, value):
         self.bot.AMASS_ARMY = value

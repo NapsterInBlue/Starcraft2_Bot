@@ -4,19 +4,24 @@ from sc2.constants import *
 class UnitCreationController:
     def __init__(self, bot):
         self.bot = bot
+        self.larvae = None
 
     async def step(self):
+        self.update_larvae()
         await self.build_offensive_force()
+
+    def update_larvae(self):
+        self.larvae = self.bot.units(LARVA)
 
     async def build_offensive_force(self):
         if self.bot.coordinator.check_unit_build(OVERLORD, supply_left_lt=5):
-            await self.bot.do(self.bot.coordinator.larvae.random.train(OVERLORD))
+            await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
 
         if self.bot.coordinator.check_unit_build(ZERGLING, max_units=50):
-            await self.bot.do(self.bot.coordinator.larvae.random.train(ZERGLING))
+            await self.bot.do(self.bot.globals.larvae.random.train(ZERGLING))
 
         if self.bot.worker_controller.optimize_worker_ct():
-            await self.bot.do(self.bot.coordinator.larvae.random.train(DRONE))
+            await self.bot.do(self.bot.globals.larvae.random.train(DRONE))
 
     def find_amass_army_rally_point(self):
         """Figure out where to send new units when intentionally building an army"""

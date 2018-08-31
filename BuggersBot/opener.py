@@ -53,5 +53,5 @@ class Opener:
                     await self.do(self.hq.train(QUEEN))
 
                 if self.bot.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST):
-                    self.bot.OPENER = False
+                    self.coordinator.OPENER = False
                     await self.do(self.bot.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
