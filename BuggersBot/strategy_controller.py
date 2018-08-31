@@ -13,6 +13,8 @@ class StrategyController:
         self.OPENER = True
         self.AMASS_ARMY = False
 
+        self.MAX_EVOS = 1
+
     async def step(self):
         await self.game_time()
 
