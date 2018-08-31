@@ -10,6 +10,7 @@ from sc2.position import Point2
 
 
 from coordinator import Coordinator
+from army_controller import ArmyController
 
 
 class NickZergBot(sc2.BotAI):
@@ -26,6 +27,7 @@ class NickZergBot(sc2.BotAI):
         self.hq = None
 
         self.coordinator = Coordinator(bot=self)
+        self.army_controller = ArmyController(bot=self)
 
     async def on_step(self, iteration):
         self.bases = self.townhalls
@@ -86,20 +88,20 @@ class NickZergBot(sc2.BotAI):
                         await self.do(self.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
 
     async def build_offensive_force(self):
-        if self.check_unit_build(OVERLORD, supply_left_lt=5):
+        if self.coordinator.check_unit_build(OVERLORD, supply_left_lt=5):
             await self.do(self.larvae.random.train(OVERLORD))
 
-        if self.check_unit_build(ZERGLING, max_units=50):
+        if self.coordinator.check_unit_build(ZERGLING, max_units=50):
             await self.do(self.larvae.random.train(ZERGLING))
 
-        if self.optimize_worker_ct():
+        if self.coordinator.optimize_worker_ct():
             await self.do(self.larvae.random.train(DRONE))
 
     async def queen_behavior(self):
         if self.units(QUEEN).exists:
             for queen in self.units(QUEEN):
-                await self.defend(queen)
-                await self.patrol(queen)
+                await self.army_controller.defend(queen)
+                await self.army_controller.patrol(queen)
 
                 abilities = await self.get_available_abilities(queen)
                 if EFFECT_INJECTLARVA in abilities:
@@ -119,9 +121,9 @@ class NickZergBot(sc2.BotAI):
                     if not err:
                         mfs = self.state.mineral_field.closer_than(10, hatch.position.to2)
                         if self.AMASS_ARMY:
-                            loc = self.find_amass_army_rally_point()
+                            loc = self.coordinator.find_amass_army_rally_point()
                         elif mfs.exists:
-                            loc = self.center_of_units(mfs)
+                            loc = self.coordinator.center_of_units(mfs)
                         err = await self.do(hatch(RALLY_UNITS, loc))
                         if not err:
                             self.hatcheryRallyPointsSet[hatch.tag] = loc
@@ -148,8 +150,8 @@ class NickZergBot(sc2.BotAI):
 
             elif self.units(UNIT).amount > aggressive_units[UNIT][1]:
                 for s in self.units(UNIT).idle:
-                    await self.defend(s)
+                    await self.army_controller.defend(s)
 
     async def game_time(self):
-        if self.game_time_in_mins > 3 and not self.AMASS_ARMY:
+        if self.coordinator.game_time_in_mins > 3 and not self.AMASS_ARMY:
             await self.toggle_amass_army(True)

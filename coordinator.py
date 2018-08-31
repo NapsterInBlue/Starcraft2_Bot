@@ -27,7 +27,7 @@ class Coordinator:
     @property
     def game_time_in_mins(self):
         # returns real time if game is played on "faster"
-        return self.bot.game_time_in_seconds / 60
+        return self.game_time_in_seconds / 60
 
     def check_unit_build(self, desired_unit, needs_larva=True, max_units=999,
                          supply_used_gt=0, supply_used_lt=201,
@@ -58,15 +58,7 @@ class Coordinator:
                 return True
         return False
 
-    async def patrol(self, unit):
-        if unit.is_idle:
-            await self.bot.do(unit.move(self.bot.townhalls.random.position))
 
-    async def defend(self, unit):
-        for enemy in self.bot.known_enemy_units:
-            dist_to_base = min([enemy.distance_to(base) for base in self.bot.bases])
-            if dist_to_base < 30:
-                await self.bot.do(unit.attack(enemy))
 
     def center_of_units(self, units):
         if isinstance(units, list):
