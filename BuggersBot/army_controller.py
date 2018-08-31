@@ -1,9 +1,18 @@
 from sc2.constants import *
 
+from .queen_controller import QueenController
+
 
 class ArmyController:
     def __init__(self, bot):
         self.bot = bot
+        self.queen_controller = QueenController(bot)
+
+    def init(self):
+        self.map_center = self.bot.game_info.map_center
+
+    async def step(self):
+        await self.queen_controller.queen_behavior()
 
     async def defend(self, unit):
         for enemy in self.bot.known_enemy_units:

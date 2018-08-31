@@ -70,5 +70,5 @@ class WorkerController:
     async def build_workers(self):
         n_workers = self.bot.units(UnitTypeId.DRONE).amount
 
-        if self.bot.coordinator.can_build_unit(UnitTypeId.DRONE):
+        if self.bot.coordinator.check_unit_build(UnitTypeId.DRONE):
             await self.bot.do(self.larvae.random.train(UnitTypeId.DRONE))

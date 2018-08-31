@@ -7,6 +7,7 @@ from sc2.constants import *
 
 from .coordinator import Coordinator
 from .army_controller import ArmyController
+from .worker_controller import WorkerController
 from .event_manager import EventManager
 
 
@@ -25,7 +26,16 @@ class Buggers(sc2.BotAI):
 
         self.coordinator = Coordinator(bot=self)
         self.army_controller = ArmyController(bot=self)
+        self.worker_controller = WorkerController(bot=self)
         self.event_manager = EventManager()
+
+        self.order_queue = []
+
+    def on_start(self):
+        self.army_controller.init()
+
+        self.event_manager.add_event(self.worker_controller.step, 0.1)
+        self.event_manager.add_event(self.army_controller.step, 0.1)
 
     async def on_step(self, iteration):
         self.bases = self.townhalls
@@ -33,57 +43,72 @@ class Buggers(sc2.BotAI):
         self.larvae = self.units(LARVA)
         self.iteration = iteration
 
-        await self.distribute_workers()
-        await self.opener()
-        await self.queen_behavior()
+        if self.OPENER:
+            await self.opener()
 
-        if not self.OPENER:
+        else:
             await self.build_offensive_force()
             await self.attack()
             await self.assign_rally_points()
             await self.game_time()
 
+            events = self.event_manager.get_current_events(self.time)
+            for event in events:
+                await event()
+
+        await self.execute_order_queue()
+
+    async def do(self, action):
+        self.order_queue.append(action)
+
+    async def execute_order_queue(self):
+        await self._client.actions(self.order_queue, game_data=self._game_data)
+        self.order_queue = []
+
     async def opener(self):
-        """Lovingly and painstakingly implented the build order of this guide:
-        https://www.reddit.com/r/allthingszerg/comments/3wzi14/welcome_to_lotv_heres_my_writeup_of_solid/"""
-        if self.OPENER:
-            if self.coordinator.check_unit_build(DRONE, supply_used_lt=13):
-                await self.do(self.larvae.random.train(DRONE))
+        """
+        Lovingly and painstakingly implented the build order of this guide:
+        https://www.reddit.com/r/allthingszerg/comments/3wzi14/welcome_to_lotv_heres_my_writeup_of_solid/
+        """
+        await self.distribute_workers()
 
-            if self.coordinator.check_unit_build(OVERLORD, supply_used_lt=14, max_units=2):
-                await self.do(self.larvae.random.train(OVERLORD))
+        if self.coordinator.check_unit_build(DRONE, supply_used_lt=13):
+            await self.do(self.larvae.random.train(DRONE))
 
-            if self.coordinator.check_for_building(HATCHERY, limit=2):
-                await self.expand_now()
+        if self.coordinator.check_unit_build(OVERLORD, supply_used_lt=14, max_units=2):
+            await self.do(self.larvae.random.train(OVERLORD))
 
-            if self.coordinator.check_unit_build(DRONE, supply_used_lt=20, supply_left_gt=4):
-                await self.do(self.larvae.random.train(DRONE))
+        if self.coordinator.check_for_building(HATCHERY, limit=2):
+            await self.expand_now()
 
-            if self.coordinator.check_for_building(HATCHERY, at_least=2):
-                if self.coordinator.check_for_building(SPAWNINGPOOL, limit=1):
-                    await self.do(self.units(DRONE).random.move(self.enemy_start_locations[0]))
-                    await self.build(SPAWNINGPOOL, near=self.hq)
+        if self.coordinator.check_unit_build(DRONE, supply_used_lt=20, supply_left_gt=4):
+            await self.do(self.larvae.random.train(DRONE))
 
-                if self.coordinator.check_for_building(EXTRACTOR, limit=1) and self.supply_used > 17:
-                    drone = self.workers.random
-                    target = self.state.vespene_geyser.closest_to(drone.position)
-                    await self.do(drone.build(EXTRACTOR, target))
+        if self.coordinator.check_for_building(HATCHERY, at_least=2):
+            if self.coordinator.check_for_building(SPAWNINGPOOL, limit=1):
+                await self.do(self.units(DRONE).random.move(self.enemy_start_locations[0]))
+                await self.build(SPAWNINGPOOL, near=self.hq)
 
-                if self.coordinator.check_unit_build(OVERLORD, supply_used_gt=20, max_units=3):
-                    await self.do(self.larvae.first.train(OVERLORD))
+            if self.coordinator.check_for_building(EXTRACTOR, limit=1) and self.supply_used > 17:
+                drone = self.workers.random
+                target = self.state.vespene_geyser.closest_to(drone.position)
+                await self.do(drone.build(EXTRACTOR, target))
 
-                if self.coordinator.optimize_worker_ct():
-                    await self.do(self.larvae.first.train(DRONE))
+            if self.coordinator.check_unit_build(OVERLORD, supply_used_gt=20, max_units=3):
+                await self.do(self.larvae.first.train(OVERLORD))
 
-                if self.units(SPAWNINGPOOL).ready:
-                    if (self.coordinator.check_unit_build(QUEEN, max_units=3, needs_larva=False)
-                            and self.hq.is_ready and self.hq.noqueue):
+            if self.coordinator.optimize_worker_ct():
+                await self.do(self.larvae.first.train(DRONE))
 
-                        await self.do(self.hq.train(QUEEN))
+            if self.units(SPAWNINGPOOL).ready:
+                if (self.coordinator.check_unit_build(QUEEN, max_units=3, needs_larva=False)
+                        and self.hq.is_ready and self.hq.noqueue):
 
-                    if self.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST):
-                        self.OPENER = False
-                        await self.do(self.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
+                    await self.do(self.hq.train(QUEEN))
+
+                if self.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST):
+                    self.OPENER = False
+                    await self.do(self.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
 
     async def build_offensive_force(self):
         if self.coordinator.check_unit_build(OVERLORD, supply_left_lt=5):
@@ -94,16 +119,6 @@ class Buggers(sc2.BotAI):
 
         if self.coordinator.optimize_worker_ct():
             await self.do(self.larvae.random.train(DRONE))
-
-    async def queen_behavior(self):
-        if self.units(QUEEN).exists:
-            for queen in self.units(QUEEN):
-                await self.army_controller.defend(queen)
-                await self.army_controller.patrol(queen)
-
-                abilities = await self.get_available_abilities(queen)
-                if EFFECT_INJECTLARVA in abilities:
-                    await self.do(queen(EFFECT_INJECTLARVA, self.townhalls.closest_to(queen)))
 
     async def toggle_amass_army(self, value):
         self.AMASS_ARMY = value
