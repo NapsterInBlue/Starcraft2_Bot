@@ -27,13 +27,13 @@ class WorkerController:
         n_workers = self.bot.units(UnitTypeId.DRONE).amount
 
         if self.optimize_worker_ct():
-            if self.bot.coordinator.check_unit_build(UnitTypeId.DRONE):
+            if self.bot.coordinator.unit_check(UnitTypeId.DRONE):
                 await self.bot.do(self.larvae.random.train(UnitTypeId.DRONE))
 
     def optimize_worker_ct(self):
         for base in self.bot.globals.bases:
             if (base.assigned_harvesters - base.ideal_harvesters < 0
-                    and self.bot.coordinator.check_unit_build(DRONE, max_units=self.maximum_workers)):
+                    and self.bot.coordinator.unit_check(DRONE, max_units=self.maximum_workers)):
 
                 return True
         return False

@@ -19,36 +19,36 @@ class Opener:
 
         await self.bot.distribute_workers()
 
-        if self.coordinator.check_unit_build(DRONE, supply_used_lt=13):
+        if self.coordinator.unit_check(DRONE, supply_used_lt=13):
             await self.do(self.larvae.random.train(DRONE))
 
-        if self.coordinator.check_unit_build(OVERLORD, supply_used_lt=14, max_units=2):
+        if self.coordinator.unit_check(OVERLORD, supply_used_lt=14, max_units=2):
             await self.do(self.larvae.random.train(OVERLORD))
 
-        if self.coordinator.check_for_building(HATCHERY, limit=2):
+        if self.coordinator.building_check(HATCHERY, limit=2):
             await self.bot.expand_now()
 
-        if self.coordinator.check_unit_build(DRONE, supply_used_lt=20, supply_left_gt=4):
+        if self.coordinator.unit_check(DRONE, supply_used_lt=20, supply_left_gt=4):
             await self.do(self.larvae.random.train(DRONE))
 
-        if self.coordinator.check_for_building(HATCHERY, at_least=2):
-            if self.coordinator.check_for_building(SPAWNINGPOOL, limit=1):
+        if self.coordinator.building_check(HATCHERY, at_least=2):
+            if self.coordinator.building_check(SPAWNINGPOOL, limit=1):
                 await self.do(self.bot.units(DRONE).random.move(self.bot.enemy_start_locations[0]))
                 await self.bot.build(SPAWNINGPOOL, near=self.hq)
 
-            if self.coordinator.check_for_building(EXTRACTOR, limit=1) and self.bot.supply_used > 17:
+            if self.coordinator.building_check(EXTRACTOR, limit=1) and self.bot.supply_used > 17:
                 drone = self.bot.workers.random
                 target = self.bot.state.vespene_geyser.closest_to(drone.position)
                 await self.do(drone.build(EXTRACTOR, target))
 
-            if self.coordinator.check_unit_build(OVERLORD, supply_used_gt=20, max_units=3):
+            if self.coordinator.unit_check(OVERLORD, supply_used_gt=20, max_units=3):
                 await self.do(self.larvae.first.train(OVERLORD))
 
             if self.bot.worker_controller.optimize_worker_ct():
                 await self.do(self.larvae.first.train(DRONE))
 
             if self.bot.units(SPAWNINGPOOL).ready:
-                if (self.coordinator.check_unit_build(QUEEN, max_units=3, needs_larva=False)
+                if (self.coordinator.unit_check(QUEEN, max_units=3, needs_larva=False)
                         and self.hq.is_ready and self.hq.noqueue):
                     await self.do(self.hq.train(QUEEN))
 

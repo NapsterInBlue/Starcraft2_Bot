@@ -20,9 +20,9 @@ class Coordinator:
 
 # utils
 
-    def check_unit_build(self, desired_unit, needs_larva=True, max_units=999,
-                         supply_used_gt=0, supply_used_lt=201,
-                         supply_left_gt=0, supply_left_lt=201):
+    def unit_check(self, desired_unit, needs_larva=True, max_units=999,
+                   supply_used_gt=0, supply_used_lt=201,
+                   supply_left_gt=0, supply_left_lt=201):
 
         unit_count = self.bot.units(desired_unit).amount + self.bot.already_pending(desired_unit)
         larva_req_met = not needs_larva or self.bot.globals.larvae.exists
@@ -33,13 +33,16 @@ class Coordinator:
                 and self.bot.can_afford(desired_unit)
                 and unit_count < max_units)
 
-    def check_for_building(self, desired_building, at_least=0, limit=999):
+    def building_check(self, desired_building, at_least=0, limit=999):
 
         building_count = (self.bot.units(desired_building).amount
                           + self.bot.already_pending(desired_building))
 
         return (at_least <= building_count < limit
                 and self.bot.can_afford(desired_building))
+
+    def research_check(self, desired_tech):
+        return self.bot.can_afford(desired_tech)
 
     def center_of_units(self, units):
         if isinstance(units, list):

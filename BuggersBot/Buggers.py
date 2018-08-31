@@ -12,6 +12,7 @@ from .opener import Opener
 from .unit_creation_controller import UnitCreationController
 from .army_controller import ArmyController
 from .worker_controller import WorkerController
+from .research_controller import ResearchController
 from .event_manager import EventManager
 from .building_controller import BuildingController
 
@@ -25,6 +26,7 @@ class Buggers(sc2.BotAI):
         self.army_controller = ArmyController(bot=self)
         self.building_controller = BuildingController(bot=self)
         self.worker_controller = WorkerController(bot=self)
+        self.research_controller = ResearchController(bot=self)
         self.event_manager = EventManager()
 
         self.order_queue = []
@@ -36,6 +38,7 @@ class Buggers(sc2.BotAI):
         self.event_manager.add_event(self.building_controller.step, 0.25)
         self.event_manager.add_event(self.unit_creation_controller.step, 0.1)
         self.event_manager.add_event(self.army_controller.step, 0.1)
+        self.event_manager.add_event(self.research_controller.step, 0.5)
         self.event_manager.add_event(self.worker_controller.step, 0.1)
 
     async def on_step(self, iteration):

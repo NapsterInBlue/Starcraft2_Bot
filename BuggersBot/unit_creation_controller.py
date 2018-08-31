@@ -14,10 +14,10 @@ class UnitCreationController:
         self.larvae = self.bot.units(LARVA)
 
     async def build_offensive_force(self):
-        if self.bot.coordinator.check_unit_build(OVERLORD, supply_left_lt=5):
+        if self.bot.coordinator.unit_check(OVERLORD, supply_left_lt=5):
             await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
 
-        if self.bot.coordinator.check_unit_build(ZERGLING, max_units=50):
+        if self.bot.coordinator.unit_check(ZERGLING, max_units=50):
             await self.bot.do(self.bot.globals.larvae.random.train(ZERGLING))
 
         if self.bot.worker_controller.optimize_worker_ct():
