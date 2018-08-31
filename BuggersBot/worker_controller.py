@@ -1,4 +1,5 @@
 from sc2.ids.unit_typeid import UnitTypeId
+from sc2.constants import *
 
 
 class WorkerController:
@@ -72,3 +73,11 @@ class WorkerController:
 
         if self.bot.coordinator.check_unit_build(UnitTypeId.DRONE):
             await self.bot.do(self.larvae.random.train(UnitTypeId.DRONE))
+
+    def optimize_worker_ct(self):
+        for base in self.bot.townhalls:
+            if (base.assigned_harvesters - base.ideal_harvesters < 0
+                    and self.bot.coordinator.check_unit_build(DRONE, max_units=self.maximum_workers)):
+
+                return True
+        return False
