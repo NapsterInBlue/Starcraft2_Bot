@@ -70,10 +70,7 @@ class Coordinator:
         coordY = sum([unit.position.y for unit in units]) / len(units)
         return Point2((coordX, coordY))
 
-    def find_amass_army_rally_point(self):
-        """Figure out where to send new units when intentionally building an army"""
-        enemy_hq = self.bot.enemy_start_locations[0]
-        satellite = self.bot.townhalls.closest_to(enemy_hq)
-        point = satellite.position.towards(self.bot._game_info.map_center, distance=5, limit=True)
-        print("Setting Rally point to {}".format(point.position.to2))
-        return point
+
+
+    async def toggle_amass_army(self, value):
+        self.bot.AMASS_ARMY = value
