@@ -14,6 +14,7 @@ from .opener import Opener
 
 from .strategy_controller import StrategyController
 from .unit_creation_controller import UnitCreationController
+from .scouting_controller import ScoutingController
 from .army_controller import ArmyController
 from .worker_controller import WorkerController
 from .research_controller import ResearchController
@@ -21,7 +22,9 @@ from .building_controller import BuildingController
 
 
 class Buggers(sc2.BotAI):
-    def __init__(self):
+    def __init__(self, verbose=True):
+        self.verbose = verbose
+
         self.event_manager = EventManager()
         self.checker = Checker(bot=self)
         self.calculator = Calculator(bot=self)
@@ -29,6 +32,7 @@ class Buggers(sc2.BotAI):
         self.opener = Opener(bot=self)
 
         self.strategy_controller = StrategyController(bot=self)
+        self.scouting_controller = ScoutingController(bot=self)
         self.unit_creation_controller = UnitCreationController(bot=self)
         self.army_controller = ArmyController(bot=self)
         self.worker_controller = WorkerController(bot=self)
@@ -41,6 +45,7 @@ class Buggers(sc2.BotAI):
         self.globals.init()
 
         self.event_manager.add_event(self.strategy_controller.step, 0.5)
+        self.event_manager.add_event(self.scouting_controller.step, 0.1)
         self.event_manager.add_event(self.unit_creation_controller.step, 0.1)
         self.event_manager.add_event(self.army_controller.step, 0.1)
         self.event_manager.add_event(self.worker_controller.step, 0.25)
