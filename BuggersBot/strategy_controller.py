@@ -12,15 +12,19 @@ class StrategyController:
 
         self.OPENER = True
         self.AMASS_ARMY = False
+        self.EXPAND = False
 
         self.MAX_EVOS = 1
 
     async def step(self):
-        await self.game_time()
+        await self.game_time_benchmarks()
 
-    async def game_time(self):
+    async def game_time_benchmarks(self):
         if self.bot.globals.game_time_in_mins > 3 and not self.AMASS_ARMY:
             await self.toggle_amass_army(True)
+
+        if self.bot.globals.game_time_in_mins > 3.5 and len(self.bot.globals.bases) < 3:
+            self.EXPAND = True
 
     async def toggle_amass_army(self, value):
         print("Amassing army")

@@ -25,15 +25,16 @@ class UnitCreationController:
         if self.bot.checker.unit(OVERLORD, supply_left_lt=5, supply_left_gt=-1):
             await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
 
-        if (self.bot.checker.unit(QUEEN, needs_larva=False, max_units=self.MAX_QUEENS) and
-                self.bot.globals.hq.is_ready and self.bot.globals.hq.noqueue):
-            await self.bot.do(self.bot.globals.hq.train(QUEEN))
+        if not self.bot.strategy_controller.EXPAND:
+            if (self.bot.checker.unit(QUEEN, needs_larva=False, max_units=self.MAX_QUEENS) and
+                    self.bot.globals.hq.is_ready and self.bot.globals.hq.noqueue):
+                await self.bot.do(self.bot.globals.hq.train(QUEEN))
 
-        if self.bot.worker_controller.optimize_worker_ct():
-            await self.bot.do(self.bot.globals.larvae.random.train(DRONE))
+            if self.bot.worker_controller.optimize_worker_ct():
+                await self.bot.do(self.bot.globals.larvae.random.train(DRONE))
 
-        if self.bot.checker.unit(ZERGLING, max_units=50):
-            await self.bot.do(self.bot.globals.larvae.random.train(ZERGLING))
+            if self.bot.checker.unit(ZERGLING, max_units=50):
+                await self.bot.do(self.bot.globals.larvae.random.train(ZERGLING))
 
     async def assign_rally_points(self):
         """Rally workers to nearest minerals. Rally units closeby."""

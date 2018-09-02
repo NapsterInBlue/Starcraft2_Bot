@@ -18,6 +18,7 @@ class BuildingController:
         await self.expand_vespene()
         await self.build_evo_chamber()
         await self.build_baneling_nest()
+        await self.expand_hatcheries()
 
     async def expand_vespene(self):
         bases = self.bot.globals.bases
@@ -46,6 +47,23 @@ class BuildingController:
             self.announce(BANELINGNEST, 'Baneling Nest')
             await self.bot.build(BANELINGNEST, near=self.bot.globals.hq)
 
+    async def expand_hatcheries(self):
+        if self.bot.strategy_controller.EXPAND and self.checker.building(HATCHERY):
+            print('Considering Expansion')
+            loc = self.find_expansion_location()
+            await self.bot.expand_now(location=loc)
+            self.bot.strategy_controller.EXPAND = False
+
+    def find_expansion_location(self):
+        bases = self.bot.globals.bases
+        center = self.bot.calculator.center_of_units(bases)
+
+        candidates = list(filter(
+            lambda x: x not in [base.position for base in self.bot.globals.bases],
+            center.sort_by_distance(reversed(list(self.bot.expansion_locations)))
+        ))[3:]
+
+        return random.sample(candidates, k=1)[0]
 
 # utils
 
