@@ -16,6 +16,7 @@ from sc2.constants import *
 
 from BuggersBot.micro.queen_controller import QueenController
 from BuggersBot.micro.zergling_controller import ZerglingController
+from BuggersBot.micro.overlord_controller import OverlordController
 
 
 class ArmyController:
@@ -23,10 +24,12 @@ class ArmyController:
         self.bot = bot
         self.queen_controller = QueenController(bot)
         self.zergling_controller = ZerglingController(bot)
+        self.overlord_controller = OverlordController(bot)
 
     async def step(self):
         await self.queen_controller.queen_behavior()
         await self.zergling_controller.step()
+        await self.overlord_controller.step()
         await self.attack_strategy()
 
     async def attack_strategy(self):

@@ -7,7 +7,7 @@ class ScoutingController:
         self.bot = bot
         self.verbose = self.bot.verbose
 
-        self.overlords = None
+        self.overlords = set()
 
         self.lings = set()
         self.NUM_LINGS = 3
@@ -15,7 +15,10 @@ class ScoutingController:
         self.scout_timer = 0
         self.SCOUT_INTERVAL = 30
 
+        self.scouted_expansions = set()
+
     async def step(self):
+        await self.update_scouted_expansions()
         await self.assign_ling_scouts()
 
     async def assign_ling_scouts(self):
@@ -59,3 +62,10 @@ class ScoutingController:
 
                 else:
                     pass
+
+    async def update_scouted_expansions(self):
+        for expansion in list(self.scouted_expansions):
+            occupied = expansion.distance_to_closest(self.bot.units) < 10
+
+            if not occupied:
+                self.scouted_expansions.remove(expansion)
