@@ -14,21 +14,25 @@ import random
 
 from sc2.constants import *
 
-from .queen_controller import QueenController
+from BuggersBot.micro.queen_controller import QueenController
+from BuggersBot.micro.zergling_controller import ZerglingController
 
 
 class ArmyController:
     def __init__(self, bot):
         self.bot = bot
         self.queen_controller = QueenController(bot)
+        self.zergling_controller = ZerglingController(bot)
 
     async def step(self):
         await self.queen_controller.queen_behavior()
+        await self.zergling_controller.step()
         await self.attack_strategy()
 
     async def attack_strategy(self):
         # {UNIT: [n to fight, n to defend]}
-        aggressive_units = {ZERGLING: [15, 5],
+        aggressive_units = {ZERGLING: [25, 5],
+                            BANELING: [5, 5]
                             }
 
         for UNIT in aggressive_units:

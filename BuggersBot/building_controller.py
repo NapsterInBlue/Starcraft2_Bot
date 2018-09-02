@@ -17,6 +17,7 @@ class BuildingController:
     async def step(self):
         await self.expand_vespene()
         await self.build_evo_chamber()
+        await self.build_baneling_nest()
 
     async def expand_vespene(self):
         bases = self.bot.globals.bases
@@ -34,5 +35,11 @@ class BuildingController:
         if self.checker.building(UnitTypeId.EVOLUTIONCHAMBER,
                                  limit=self.bot.strategy_controller.MAX_EVOS):
             base = self.bot.globals.bases.random
-            print('Building an evolution chamber')
+            print('Building an Evolution Chamber')
             await self.bot.build(EVOLUTIONCHAMBER, near=base)
+
+    async def build_baneling_nest(self):
+        if (self.bot.units(SPAWNINGPOOL).exists and
+                self.checker.building(UnitTypeId.BANELINGNEST, limit=1)):
+            print('Building Baneling Nest')
+            await self.bot.build(BANELINGNEST, near=self.bot.globals.hq)

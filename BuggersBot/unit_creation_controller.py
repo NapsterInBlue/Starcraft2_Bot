@@ -22,12 +22,12 @@ class UnitCreationController:
         self.larvae = self.bot.units(LARVA)
 
     async def build_offensive_force(self):
+        if self.bot.checker.unit(OVERLORD, supply_left_lt=5, supply_left_gt=-1):
+            await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
+
         if (self.bot.checker.unit(QUEEN, needs_larva=False, max_units=self.MAX_QUEENS) and
                 self.bot.globals.hq.is_ready and self.bot.globals.hq.noqueue):
             await self.bot.do(self.bot.globals.hq.train(QUEEN))
-
-        if self.bot.checker.unit(OVERLORD, supply_left_lt=5):
-            await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
 
         if self.bot.worker_controller.optimize_worker_ct():
             await self.bot.do(self.bot.globals.larvae.random.train(DRONE))
