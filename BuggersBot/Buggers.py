@@ -74,9 +74,28 @@ class Buggers(sc2.BotAI):
 
         await self.execute_order_queue()
 
+        await self.debug()
+
     async def do(self, action):
         self.order_queue.append(action)
 
     async def execute_order_queue(self):
         await self._client.actions(self.order_queue, game_data=self._game_data)
         self.order_queue = []
+
+    async def debug(self):
+        font_size = 14
+
+        messages = [
+            ('scouted_locations:', len(self.scouting_controller.scouted_expansions))
+        ]
+
+        y = 0
+        inc = 0.018
+
+        for key, number in messages:
+            message = (key + '{:3d}'.format(number)).rjust(25)
+            self._client.debug_text_screen(message, pos=(0.001, y), size=font_size)
+            y += inc
+
+        await self._client.send_debug()
