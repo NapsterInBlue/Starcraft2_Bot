@@ -42,6 +42,10 @@ class Globals:
     def update_base_list(self):
         self.bases = self.bot.townhalls
 
+    @property
+    def hq(self):
+        return self.bases.first
+
     def update_larvae_list(self):
         self.larvae = self.bot.units(LARVA)
 

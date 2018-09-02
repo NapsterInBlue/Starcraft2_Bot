@@ -11,6 +11,8 @@ class UnitCreationController:
         self.bot = bot
         self.larvae = None
 
+        self.MAX_QUEENS = 5
+
     async def step(self):
         self.update_larvae()
         await self.build_offensive_force()
@@ -20,6 +22,10 @@ class UnitCreationController:
         self.larvae = self.bot.units(LARVA)
 
     async def build_offensive_force(self):
+        if (self.bot.checker.unit(QUEEN, needs_larva=False, max_units=self.MAX_QUEENS) and
+                self.bot.globals.hq.is_ready and self.bot.globals.hq.noqueue):
+            await self.bot.do(self.bot.globals.hq.train(QUEEN))
+
         if self.bot.checker.unit(OVERLORD, supply_left_lt=5):
             await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
 
