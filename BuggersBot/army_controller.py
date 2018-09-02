@@ -31,7 +31,7 @@ class ArmyController:
 
     async def attack_strategy(self):
         # {UNIT: [n to fight, n to defend]}
-        aggressive_units = {ZERGLING: [25, 5],
+        aggressive_units = {ZERGLING: [15, 5],
                             BANELING: [5, 5]
                             }
 
