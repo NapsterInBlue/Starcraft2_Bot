@@ -1,4 +1,5 @@
 import random
+import sys
 
 import sc2
 
@@ -53,11 +54,13 @@ class Buggers(sc2.BotAI):
         self.event_manager.add_event(self.building_controller.step, 2)
 
     async def on_step(self, iteration):
-        # if iteration == 0:
-        #     print(iteration)
-        #     await self.chat_send('GL HF!')
-        #
-        #     return
+        if iteration == 0:
+            if self.verbose:
+                print('\n-------------\n')
+                print('Starting bot')
+                print('\n-------------\n')
+
+            return
 
         await self.globals.step()
 

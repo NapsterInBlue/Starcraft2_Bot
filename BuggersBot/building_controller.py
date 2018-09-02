@@ -34,12 +34,21 @@ class BuildingController:
     async def build_evo_chamber(self):
         if self.checker.building(UnitTypeId.EVOLUTIONCHAMBER,
                                  limit=self.bot.strategy_controller.MAX_EVOS):
+
             base = self.bot.globals.bases.random
-            print('Building an Evolution Chamber')
+            self.announce(EVOLUTIONCHAMBER, 'Evolution Chamber')
             await self.bot.build(EVOLUTIONCHAMBER, near=base)
 
     async def build_baneling_nest(self):
         if (self.bot.units(SPAWNINGPOOL).exists and
                 self.checker.building(UnitTypeId.BANELINGNEST, limit=1)):
-            print('Building Baneling Nest')
+
+            self.announce(BANELINGNEST, 'Baneling Nest')
             await self.bot.build(BANELINGNEST, near=self.bot.globals.hq)
+
+
+# utils
+
+    def announce(self, unit, unit_str):
+        if not self.bot.already_pending(unit):
+            print('{:6.2f} Building {}'.format(self.bot.time, unit_str))

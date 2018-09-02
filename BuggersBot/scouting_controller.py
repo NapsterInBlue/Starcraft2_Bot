@@ -41,7 +41,7 @@ class ScoutingController:
 
                 if idle_lings.exists:
                     if self.verbose:
-                        print('%6.2f Scouting' % (self.bot.time))
+                        print('{:6.2f} Scouting'.format(self.bot.time))
 
                     for _ in range(missing_scouting_lings):
                         if self.bot.units(ZERGLING).amount > 0:
