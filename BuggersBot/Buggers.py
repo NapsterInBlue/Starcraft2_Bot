@@ -43,8 +43,6 @@ class Buggers(sc2.BotAI):
         self.order_queue = []
 
     def on_start(self):
-        self.globals.init()
-
         self.event_manager.add_event(self.strategy_controller.step, 0.5)
         self.event_manager.add_event(self.scouting_controller.step, 0.1)
         self.event_manager.add_event(self.unit_creation_controller.step, 0.1)
@@ -56,6 +54,8 @@ class Buggers(sc2.BotAI):
     async def on_step(self, iteration):
         if iteration == 0:
             if self.verbose:
+                self.globals.init()
+
                 print('\n-------------\n')
                 print('Starting bot')
                 print('\n-------------\n')

@@ -29,10 +29,22 @@ class Globals:
 
         self.map_center = None
         self.enemy_hq = None
+        self.enemy_natural = None
+        self.player_expansions = None
+        self.enemy_expansions = None
 
     def init(self):
+        """Initialize map values with info gathered in first _prepare_step
+        iteration."""
+        self.update_base_list()
+
         self.map_center = self.bot.game_info.map_center
         self.enemy_hq = self.bot.enemy_start_locations[0]
+
+        self.player_expansions = self.hq.position.sort_by_distance(self.bot.expansion_locations)[1:]
+        self.enemy_expansions = self.enemy_hq.position.sort_by_distance(self.bot.expansion_locations)[1:]
+
+        self.enemy_natural = self.enemy_expansions[0]
 
     async def step(self):
         self.update_base_list()

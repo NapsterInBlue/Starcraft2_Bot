@@ -16,8 +16,8 @@ class Opener:
 
     async def step(self):
         self.bases = self.bot.townhalls
-        self.hq = self.bot.townhalls.first
         self.larvae = self.bot.units(LARVA)
+        self.hq = self.bot.globals.hq
 
         await self.bot.distribute_workers()
 
@@ -26,6 +26,8 @@ class Opener:
 
         if self.checker.unit(OVERLORD, supply_used_lt=14, max_units=2):
             await self.do(self.larvae.random.train(OVERLORD))
+
+        await self.do(self.bot.units(OVERLORD).first.move(self.bot.globals.enemy_natural))
 
         if self.checker.building(HATCHERY, limit=2):
             await self.bot.expand_now()
