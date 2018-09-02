@@ -49,21 +49,31 @@ class BuildingController:
 
     async def expand_hatcheries(self):
         if self.bot.strategy_controller.EXPAND and self.checker.building(HATCHERY):
-            print('Considering Expansion')
             loc = self.find_expansion_location()
-            await self.bot.expand_now(location=loc)
+            print('Expanding to ', loc)
             self.bot.strategy_controller.EXPAND = False
+            await self.bot.expand_now(location=loc)
 
     def find_expansion_location(self):
+        debug = True
+
         bases = self.bot.globals.bases
         center = self.bot.calculator.center_of_units(bases)
 
         candidates = list(filter(
             lambda x: x not in [base.position for base in self.bot.globals.bases],
-            center.sort_by_distance(reversed(list(self.bot.expansion_locations)))
-        ))[3:]
+            center.sort_by_distance(list(self.bot.expansion_locations))
+        ))[2:]
 
-        return random.sample(candidates, k=1)[0]
+        loc = random.sample(candidates, k=1)[0]
+
+        if debug:
+            print([base.position for base in bases])
+            print(center)
+            print(candidates)
+            print(loc)
+
+        return loc
 
 # utils
 
