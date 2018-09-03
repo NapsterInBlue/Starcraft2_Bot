@@ -49,7 +49,7 @@ class Buggers(sc2.BotAI):
         self.event_manager.add_event(self.army_controller.step, 0.1)
         self.event_manager.add_event(self.worker_controller.step, 0.25)
         self.event_manager.add_event(self.research_controller.step, 2)
-        self.event_manager.add_event(self.building_controller.step, 2)
+        self.event_manager.add_event(self.building_controller.step, 1)
 
     async def on_step(self, iteration):
         if iteration == 0:
@@ -87,7 +87,8 @@ class Buggers(sc2.BotAI):
         font_size = 14
 
         messages = [
-            ('scouted_locations:', len(self.scouting_controller.scouted_expansions))
+            ('scouted_locations:', len(self.scouting_controller.scouted_expansions)),
+            ('harassing_lings', len(self.army_controller.zergling_controller.early_harassers)),
         ]
 
         y = 0

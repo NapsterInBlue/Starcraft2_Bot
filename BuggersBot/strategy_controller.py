@@ -11,6 +11,9 @@ class StrategyController:
         self.bot = bot
 
         self.OPENER = True
+
+        self.ZERGLING_NATURAL_HARASS = True
+
         self.AMASS_ARMY = False
         self.EXPAND = False
 
@@ -25,6 +28,9 @@ class StrategyController:
 
         if self.bot.globals.game_time_in_mins > 3.5 and len(self.bot.globals.bases) < 3:
             self.EXPAND = True
+
+        if self.bot.globals.game_time_in_mins > 6:
+            self.ZERGLING_NATURAL_HARASS = False
 
     async def toggle_amass_army(self, value):
         print("Amassing army")

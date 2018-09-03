@@ -12,6 +12,8 @@ Also has utility functions for:
 
 import random
 
+from sc2.unit import Unit
+from sc2.units import Units
 from sc2.constants import *
 
 from BuggersBot.micro.queen_controller import QueenController
@@ -56,9 +58,18 @@ class ArmyController:
             if dist_to_base < 30:
                 await self.bot.do(unit.attack(enemy))
 
-    async def patrol(self, unit):
-        if unit.is_idle:
-            await self.bot.do(unit.move(self.bot.townhalls.random.position))
+    async def patrol(self, unit, locations, attack=False):
+        if isinstance(locations, Unit) or isinstance(locations, Unit):
+            locations = [loc.position for loc in locations]
+
+        dest = random.choice(locations)
+
+        if not attack:
+            if unit.is_idle:
+                await self.bot.do(unit.move(dest))
+        else:
+            if unit.is_idle:
+                await self.bot.do(unit.attack(dest))
 
     def find_target(self):
         if len(self.bot.known_enemy_units) > 0:

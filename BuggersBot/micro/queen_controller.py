@@ -9,7 +9,7 @@ class QueenController:
         if self.bot.units(QUEEN).exists:
             for queen in self.bot.units(QUEEN):
                 await self.bot.army_controller.defend(queen)
-                await self.bot.army_controller.patrol(queen)
+                await self.bot.army_controller.patrol(queen, self.bot.townhalls)
 
                 abilities = await self.bot.get_available_abilities(queen)
                 if EFFECT_INJECTLARVA in abilities:

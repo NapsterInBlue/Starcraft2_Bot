@@ -48,14 +48,23 @@ class Opener:
             if self.checker.unit(OVERLORD, supply_used_gt=20, max_units=3):
                 await self.do(self.larvae.first.train(OVERLORD))
 
-            if self.bot.worker_controller.optimize_worker_ct():
-                await self.do(self.larvae.first.train(DRONE))
-
             if self.bot.units(SPAWNINGPOOL).ready:
+                if self.checker.unit(ZERGLING, max_units=4):
+                    await self.do(self.larvae.first.train(ZERGLING))
+
                 if (self.checker.unit(QUEEN, max_units=3, needs_larva=False)
                         and self.hq.is_ready and self.hq.noqueue):
                     await self.do(self.hq.train(QUEEN))
 
                 if self.bot.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST):
                     await self.do(self.bot.units(SPAWNINGPOOL).first(RESEARCH_ZERGLINGMETABOLICBOOST))
-                    self.bot.strategy_controller.OPENER = False
+
+                    if len(self.bot.units(ZERGLING)) >= 4:
+                        print('Opener complete')
+                        self.bot.strategy_controller.OPENER = False
+
+            for unit in self.bot.units(ZERGLING):
+                await self.do(unit.move(self.bot.globals.enemy_natural))
+
+            if self.bot.worker_controller.optimize_worker_ct():
+                await self.do(self.larvae.first.train(DRONE))
