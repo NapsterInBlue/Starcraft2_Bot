@@ -24,7 +24,8 @@ class BuildingController:
         bases = self.bot.globals.bases
 
         for base in bases:
-            if base.assigned_harvesters < base.ideal_harvesters:
+            if (base.assigned_harvesters < base.ideal_harvesters
+                    or not base.is_ready):
                 continue
             vgs = self.bot.state.vespene_geyser.closer_than(15, base)
             for vg in vgs:
@@ -66,7 +67,11 @@ class BuildingController:
         for candidate in list(candidates):
             for base in base_locations:
                 if candidate.distance_to(base) < 10:
-                    candidates.remove(candidate)
+                    try:
+                        candidates.remove(candidate)
+                    except KeyError:
+                        # already removed
+                        pass
 
         candidates -= set(self.bot.globals.enemy_hq)
 
