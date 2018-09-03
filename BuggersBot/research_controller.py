@@ -36,16 +36,16 @@ class ResearchController:
                 RESEARCH_ZERGMELEEWEAPONSLEVEL2: 'GROUND MELEE 2',
                 RESEARCH_ZERGMELEEWEAPONSLEVEL3: 'GROUND MELEE 3',
 
-                RESEARCH_ZERGMISSILEWEAPONSLEVEL1: 'GROUND MELEE 1',
-                RESEARCH_ZERGMISSILEWEAPONSLEVEL2: 'GROUND MELEE 2',
-                RESEARCH_ZERGMISSILEWEAPONSLEVEL3: 'GROUND MELEE 3',
+                RESEARCH_ZERGMISSILEWEAPONSLEVEL1: 'GROUND MISSILE 1',
+                RESEARCH_ZERGMISSILEWEAPONSLEVEL2: 'GROUND MISSILE 2',
+                RESEARCH_ZERGMISSILEWEAPONSLEVEL3: 'GROUND MISSILE 3',
 
-                RESEARCH_ZERGGROUNDARMORLEVEL1: 'GROUND MELEE 1',
-                RESEARCH_ZERGGROUNDARMORLEVEL2: 'GROUND MELEE 2',
-                RESEARCH_ZERGGROUNDARMORLEVEL3: 'GROUND MELEE 3'
+                RESEARCH_ZERGGROUNDARMORLEVEL1: 'GROUND ARMOR 1',
+                RESEARCH_ZERGGROUNDARMORLEVEL2: 'GROUND ARMOR 2',
+                RESEARCH_ZERGGROUNDARMORLEVEL3: 'GROUND ARMOR 3'
         }
 
-        self.evo_research_priority = ['ground_melee', 'ground_armor']
+        self.evo_research_priority = ['ground_melee', 'ground_armor', 'ground_missile']
 
     async def step(self):
         await self.manage_evo_upgrades()

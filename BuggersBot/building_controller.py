@@ -56,14 +56,16 @@ class BuildingController:
             print('Expanding to ', loc)
 
     def find_expansion_location(self):
+        """Randomly pick an unoccupied base from the three closest bases
+        to the 'average location' of your existing bases"""
         debug = False
 
-        bases = self.bot.globals.bases
-        base_locations = set([base.position for base in bases])
-        center = self.bot.calculator.center_of_units(bases)
+        base_locations = set([base.position for base in self.bot.globals.bases])
+        center = self.bot.calculator.center_of_units(self.bot.globals.bases)
 
         candidates = set(self.bot.expansion_locations)
 
+        # Remove locations with existing bases
         for candidate in list(candidates):
             for base in base_locations:
                 if candidate.distance_to(base) < 10:

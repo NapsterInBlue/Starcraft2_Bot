@@ -15,26 +15,28 @@ class UnitCreationController:
 
     async def step(self):
         self.update_larvae()
-        await self.build_offensive_force()
-        await self.assign_rally_points()
+        await self.check_for_overlords()
+        if not self.bot.strategy_controller.EXPAND:
+            await self.build_offensive_force()
+            await self.assign_rally_points()
 
     def update_larvae(self):
         self.larvae = self.bot.units(LARVA)
 
     async def build_offensive_force(self):
+        if (self.bot.checker.unit(QUEEN, needs_larva=False, max_units=self.MAX_QUEENS) and
+                self.bot.globals.hq.is_ready and self.bot.globals.hq.noqueue):
+            await self.bot.do(self.bot.globals.hq.train(QUEEN))
+
+        if self.bot.worker_controller.optimize_worker_ct():
+            await self.bot.do(self.bot.globals.larvae.random.train(DRONE))
+
+        if self.bot.checker.unit(ZERGLING, max_units=50):
+            await self.bot.do(self.bot.globals.larvae.random.train(ZERGLING))
+
+    async def check_for_overlords(self):
         if self.bot.checker.unit(OVERLORD, supply_left_lt=10, supply_left_gt=-1):
             await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
-
-        if not self.bot.strategy_controller.EXPAND:
-            if (self.bot.checker.unit(QUEEN, needs_larva=False, max_units=self.MAX_QUEENS) and
-                    self.bot.globals.hq.is_ready and self.bot.globals.hq.noqueue):
-                await self.bot.do(self.bot.globals.hq.train(QUEEN))
-
-            if self.bot.worker_controller.optimize_worker_ct():
-                await self.bot.do(self.bot.globals.larvae.random.train(DRONE))
-
-            if self.bot.checker.unit(ZERGLING, max_units=50):
-                await self.bot.do(self.bot.globals.larvae.random.train(ZERGLING))
 
     async def assign_rally_points(self):
         """Rally workers to nearest minerals. Rally units closeby."""
