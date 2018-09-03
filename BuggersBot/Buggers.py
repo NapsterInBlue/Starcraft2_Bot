@@ -87,9 +87,12 @@ class Buggers(sc2.BotAI):
         font_size = 14
 
         messages = [
+            ('larvae_up', len(self.units(LARVA))),
             ('max_bases', self.strategy_controller.max_bases),
             ('scouted_locations:', len(self.scouting_controller.scouted_expansions)),
             ('harassing_lings', len(self.army_controller.zergling_controller.early_harassers)),
+            ('zerglings', int(self.army_controller.zergling_controller.num_lings)),
+            ('banelings', self.army_controller.zergling_controller.num_banelings),
             ('drones', len(self.units(DRONE)))
         ]
 

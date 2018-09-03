@@ -7,10 +7,12 @@ class ZerglingController:
     def __init__(self, bot):
         self.bot = bot
 
-        self.baneling_ratio = None
-        self.BANELING_RATIO = .2
-
         self.early_harassers = set()
+
+        self.num_lings = 0
+        self.num_banelings = 0
+        self.baneling_ratio = 0.0
+        self.BANELING_RATIO = .2
 
     async def step(self):
         self.update_baneling_ratio()
@@ -24,13 +26,9 @@ class ZerglingController:
         num_lings = len(zerglings) + len(banelings) + 0.0001
         num_banelings = len(banelings)
 
+        self.num_lings = num_lings
+        self.num_banelings = num_banelings
         self.baneling_ratio = num_banelings / num_lings
-
-    async def evolve_to_baneling(self):
-        if (self.baneling_ratio < self.BANELING_RATIO
-                and self.bot.units(BANELINGNEST).exists):
-            if self.bot.units(ZERGLING).exists and self.bot.can_afford(BANELING):
-                await self.bot.do(self.bot.units(ZERGLING).random.train(BANELING))
 
     async def early_harass(self):
         for ling in list(self.early_harassers):
@@ -46,4 +44,11 @@ class ZerglingController:
 
         for ling in self.early_harassers:
             await self.bot.army_controller.patrol(self.bot.units.find_by_tag(ling),
-                                                  self.bot.globals.enemy_expansions[:2])
+                                                  self.bot.globals.enemy_expansions[:2],
+                                                  attack=True)
+
+    async def evolve_to_baneling(self):
+        if self.bot.units(BANELINGNEST).exists:
+            for ling in self.bot.units(ZERGLING):
+                if self.bot.checker.unit(BANELING, max_units=self.num_lings * self.BANELING_RATIO):
+                    await self.bot.do(ling.train(BANELING))
