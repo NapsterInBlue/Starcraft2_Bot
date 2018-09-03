@@ -22,7 +22,7 @@ class UnitCreationController:
         self.larvae = self.bot.units(LARVA)
 
     async def build_offensive_force(self):
-        if self.bot.checker.unit(OVERLORD, supply_left_lt=5, supply_left_gt=-1):
+        if self.bot.checker.unit(OVERLORD, supply_left_lt=10, supply_left_gt=-1):
             await self.bot.do(self.bot.globals.larvae.random.train(OVERLORD))
 
         if not self.bot.strategy_controller.EXPAND:
