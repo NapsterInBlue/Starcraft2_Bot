@@ -8,7 +8,6 @@ from examples.baneling_bust import BanelingBustBot
 
 from protossbot import NickProtossBot
 from BuggersBot.Buggers import Buggers
-from workerrush import WorkerRushBot
 
 
 def resolve_args():
@@ -16,8 +15,6 @@ def resolve_args():
 
     if bot == 'protoss':
         return Race.Protoss, NickProtossBot()
-    elif bot == 'rush':
-        return Race.Zerg, WorkerRushBot()
     elif bot == 'bane':
         return Race.Zerg, BanelingBustBot()
     elif bot == 'hydra':
