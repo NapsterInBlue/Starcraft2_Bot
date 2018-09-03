@@ -37,7 +37,7 @@ class ArmyController:
     async def attack_strategy(self):
         # {UNIT: [n to fight, n to defend]}
         aggressive_units = {ZERGLING: [15, 5],
-                            BANELING: [5, 5]
+                            BANELING: [5, 1]
                             }
 
         for UNIT in aggressive_units:
@@ -55,11 +55,11 @@ class ArmyController:
         bases = self.bot.globals.bases
         for enemy in self.bot.known_enemy_units:
             dist_to_base = min([enemy.distance_to(base) for base in bases])
-            if dist_to_base < 30:
+            if dist_to_base < 20:
                 await self.bot.do(unit.attack(enemy))
 
     async def patrol(self, unit, locations, attack=False):
-        if isinstance(locations, Unit) or isinstance(locations, Unit):
+        if isinstance(locations, Unit) or isinstance(locations, Units):
             locations = [loc.position for loc in locations]
 
         dest = random.choice(locations)
