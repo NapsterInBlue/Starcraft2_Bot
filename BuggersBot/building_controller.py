@@ -55,22 +55,29 @@ class BuildingController:
             await self.bot.expand_now(location=loc)
 
     def find_expansion_location(self):
-        debug = True
+        debug = False
 
         bases = self.bot.globals.bases
+        base_locations = set([base.position for base in bases])
         center = self.bot.calculator.center_of_units(bases)
 
-        candidates = list(filter(
-            lambda x: x not in [base.position for base in self.bot.globals.bases],
-            center.sort_by_distance(list(self.bot.expansion_locations))
-        ))[2:]
+        candidates = set(self.bot.expansion_locations)
 
-        loc = random.sample(candidates, k=1)[0]
+        for candidate in list(candidates):
+            for base in base_locations:
+                if candidate.distance_to(base) < 10:
+                    candidates.remove(candidate)
+
+        candidates -= set(self.bot.globals.enemy_hq)
+
+        closest_3 = center.sort_by_distance(list(candidates))[:3]
+        loc = random.sample(closest_3, k=1)[0]
 
         if debug:
-            print([base.position for base in bases])
+            print(base_locations)
             print(center)
             print(candidates)
+            print(closest_3)
             print(loc)
 
         return loc
