@@ -37,22 +37,22 @@ class BuildingController:
                                  limit=self.bot.strategy_controller.MAX_EVOS):
 
             base = self.bot.globals.bases.random
-            self.announce(EVOLUTIONCHAMBER, 'Evolution Chamber')
             await self.bot.build(EVOLUTIONCHAMBER, near=base)
+            self.announce(EVOLUTIONCHAMBER, 'Evolution Chamber')
 
     async def build_baneling_nest(self):
         if (self.bot.units(SPAWNINGPOOL).exists and
                 self.checker.building(UnitTypeId.BANELINGNEST, limit=1)):
 
-            self.announce(BANELINGNEST, 'Baneling Nest')
             await self.bot.build(BANELINGNEST, near=self.bot.globals.hq)
+            self.announce(BANELINGNEST, 'Baneling Nest')
 
     async def expand_hatcheries(self):
         if self.bot.strategy_controller.EXPAND and self.checker.building(HATCHERY):
             loc = self.find_expansion_location()
-            print('Expanding to ', loc)
             self.bot.strategy_controller.EXPAND = False
             await self.bot.expand_now(location=loc)
+            print('Expanding to ', loc)
 
     def find_expansion_location(self):
         debug = False

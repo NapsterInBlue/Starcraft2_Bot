@@ -15,6 +15,8 @@ class StrategyController:
         self.ZERGLING_NATURAL_HARASS = True
 
         self.AMASS_ARMY = False
+
+        self.max_bases = 2
         self.EXPAND = False
 
         self.MAX_EVOS = 1
@@ -28,6 +30,7 @@ class StrategyController:
 
         if self.bot.globals.game_time_in_mins > 3.5 and len(self.bot.globals.bases) < 3:
             self.EXPAND = True
+            self.max_bases = 3
 
         if self.bot.globals.game_time_in_mins > 6:
             self.ZERGLING_NATURAL_HARASS = False

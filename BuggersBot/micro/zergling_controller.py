@@ -33,13 +33,17 @@ class ZerglingController:
                 await self.bot.do(self.bot.units(ZERGLING).random.train(BANELING))
 
     async def early_harass(self):
+        for ling in list(self.early_harassers):
+            if not self.bot.units.find_by_tag(ling):
+                self.early_harassers.remove(ling)
+
         if (self.bot.strategy_controller.ZERGLING_NATURAL_HARASS
                 and len(self.early_harassers) < 4
                 and self.bot.units(ZERGLING).exists):
 
             for ling in self.bot.units(ZERGLING):
-                self.early_harassers.add(ling)
+                self.early_harassers.add(ling.tag)
 
         for ling in self.early_harassers:
-            await self.bot.army_controller.patrol(ling,
+            await self.bot.army_controller.patrol(self.bot.units.find_by_tag(ling),
                                                   self.bot.globals.enemy_expansions[:2])

@@ -46,7 +46,7 @@ class Buggers(sc2.BotAI):
         self.event_manager.add_event(self.strategy_controller.step, 0.5)
         self.event_manager.add_event(self.scouting_controller.step, 0.1)
         self.event_manager.add_event(self.unit_creation_controller.step, 0.1)
-        self.event_manager.add_event(self.army_controller.step, 0.1)
+        self.event_manager.add_event(self.army_controller.step, 0.1, jitter=0)
         self.event_manager.add_event(self.worker_controller.step, 0.25)
         self.event_manager.add_event(self.research_controller.step, 2)
         self.event_manager.add_event(self.building_controller.step, 1)
@@ -87,8 +87,10 @@ class Buggers(sc2.BotAI):
         font_size = 14
 
         messages = [
+            ('max_bases', self.strategy_controller.max_bases),
             ('scouted_locations:', len(self.scouting_controller.scouted_expansions)),
             ('harassing_lings', len(self.army_controller.zergling_controller.early_harassers)),
+            ('drones', len(self.units(DRONE)))
         ]
 
         y = 0
