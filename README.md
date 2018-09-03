@@ -1,6 +1,6 @@
 # Buggers Bot
 
-A `python-sc2` but that builds a Zerg army and perhaps eventually will do it well!
+A `python-sc2` bot that builds a Zerg army and perhaps eventually will do it well!
 
 ## Inspirations
 
