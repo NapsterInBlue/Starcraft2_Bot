@@ -2,7 +2,7 @@
 
 ## Mechanics
 
-- Figure out why I'm getting a lot of double actions (e.g. two expansions at the same time)
+- ~Figure out why I'm getting a lot of double actions (e.g. two expansions at the same time)~  Relying on `self.bot.global` state variables was a crap shoot in async. Instead, made some local variables that were more forgiving to the `await` pattern.
 - Better unit organization
 
    - Attackers
