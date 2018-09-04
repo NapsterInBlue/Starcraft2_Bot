@@ -14,13 +14,8 @@
 - Cleaner stage-in-game mechanisms than timestamped `if` statements
 - Explore debugging opportunities
 - [Creep Coverage](https://github.com/BurnySc2/burny-bots-python-sc2/blob/master/CreepyBot/CreepyBot.py#L755-L775)
-- Bot sleep for debug
+- ~Bot sleep for debug~
 
-``` python
-if something_interesting_happens:  # Slow down for debug
-    self._client.game_step = 1
-    await asyncio.sleep(0.02)
-```
 
 ## Strategy
 
