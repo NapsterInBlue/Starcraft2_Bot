@@ -1,5 +1,6 @@
 import random
 import sys
+import asyncio
 
 import sc2
 
@@ -25,6 +26,7 @@ from .building_controller import BuildingController
 class Buggers(sc2.BotAI):
     def __init__(self, verbose=True):
         self.verbose = verbose
+        self.game_speed_adjustment = None
 
         self.event_manager = EventManager()
         self.checker = Checker(bot=self)
@@ -53,6 +55,8 @@ class Buggers(sc2.BotAI):
 
     async def on_step(self, iteration):
         if iteration == 0:
+            self.army_controller.init()
+
             if self.verbose:
                 self.globals.init()
 
@@ -68,13 +72,21 @@ class Buggers(sc2.BotAI):
             await self.opener.step()
 
         else:
+
             events = self.event_manager.get_current_events(self.time)
             for event in events:
                 await event()
 
         await self.execute_order_queue()
-
+        await self.adjust_game_speed()
         await self.debug()
+
+    async def adjust_game_speed(self):
+        if self.game_speed_adjustment == 'normal':
+            self._client.game_step = 1
+        if self.game_speed_adjustment == 'slow':
+            await asyncio.sleep(.25)
+        return
 
     async def do(self, action):
         self.order_queue.append(action)
@@ -87,13 +99,15 @@ class Buggers(sc2.BotAI):
         font_size = 14
 
         messages = [
+            ('expand?', self.strategy_controller.EXPAND),
+            ('kill_dual_expand', self.building_controller.kill_dual_expand),
             ('larvae_up', len(self.units(LARVA))),
             ('max_bases', self.strategy_controller.max_bases),
             ('scouted_locations:', len(self.scouting_controller.scouted_expansions)),
             ('harassing_lings', len(self.army_controller.zergling_controller.early_harassers)),
             ('zerglings', int(self.army_controller.zergling_controller.num_lings)),
             ('banelings', self.army_controller.zergling_controller.num_banelings),
-            ('drones', len(self.units(DRONE)))
+            ('drones', len(self.units(DRONE))),
         ]
 
         y = 0

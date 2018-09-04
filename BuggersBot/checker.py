@@ -39,8 +39,6 @@ class Checker:
         building_count = (self.bot.units(desired_building).amount
                           + self.bot.already_pending(desired_building))
 
-        asyncio.sleep(0.0001)
-
         return (at_least <= building_count < limit
                 and self.bot.can_afford(desired_building))
 

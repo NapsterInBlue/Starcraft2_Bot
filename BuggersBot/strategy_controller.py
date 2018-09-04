@@ -29,8 +29,9 @@ class StrategyController:
             await self.toggle_amass_army(True)
 
         if self.bot.globals.game_time_in_mins > 3.5 and len(self.bot.globals.bases) < 3:
-            self.EXPAND = True
-            self.max_bases = 3
+            if not self.bot.building_controller.kill_dual_expand:
+                self.EXPAND = True
+                self.max_bases = 3
 
         if self.bot.globals.game_time_in_mins > 6:
             self.ZERGLING_NATURAL_HARASS = False

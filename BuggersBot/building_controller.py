@@ -14,11 +14,20 @@ class BuildingController:
         self.bot = bot
         self.checker = self.bot.checker
 
+        self.base_count = 2
+        self.kill_dual_expand = False
+
     async def step(self):
+        await self.update_base_count()
         await self.expand_vespene()
         await self.build_evo_chamber()
         await self.build_baneling_nest()
         await self.expand_hatcheries()
+
+    async def update_base_count(self):
+        if self.base_count < len(self.bot.globals.bases):
+            self.base_count = len(self.bot.globals.bases)
+            self.kill_dual_expand = False
 
     async def expand_vespene(self):
         bases = self.bot.globals.bases
@@ -49,10 +58,13 @@ class BuildingController:
             self.announce(BANELINGNEST, 'Baneling Nest')
 
     async def expand_hatcheries(self):
-        if self.bot.strategy_controller.EXPAND and self.checker.building(HATCHERY):
+        if (self.bot.strategy_controller.EXPAND and self.checker.building(HATCHERY)
+                and not self.kill_dual_expand):
+
             loc = self.find_expansion_location()
-            self.bot.strategy_controller.EXPAND = False
             await self.bot.expand_now(location=loc)
+            self.bot.strategy_controller.EXPAND = False
+            self.kill_dual_expand = True
             print('Expanding to ', loc)
 
     def find_expansion_location(self):
